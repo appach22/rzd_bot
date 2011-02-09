@@ -15,6 +15,7 @@ import getter
 import trackingData
 from sms import SMS
 from parser import MZAParser
+from filter import PlacesFilter
 
         
 class Bot:
@@ -132,8 +133,53 @@ class Bot:
                 except urllib2.URLError as err:
                     self.HTTPError = err.reason
                     continue
+                
                 parser = MZAParser()
-                if parser.ParsePage(response.read()) == 0:
-                    print parser.result
+                if parser.ParsePage(response.read()) != 0:
+                    continue
+                
+                filter = PlacesFilter()
+                curr = filter.applyFilter(parser.result, data)
+                if curr > prevs[i]:
+                    # new tickets have arrived!!!
+                    print "%d ==> %d" % (prevs[i], curr)
+                    self.makeEmailText(data, i, filter.filteredPlaces)
+##                    self.mailer.send("robot@rzdtickets.ru", 
+##                                data.emails,
+##                                "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
+##                                "plain",
+##                                self.makeEmailText(data, i, filter.filteredPlaces))
+##                    self.sms.send("Tickets", "Заявка %s запущена в работу" % data.uid, data.sms)
+                prevs[i] = curr
             
             time.sleep(data.period)
+
+    def makeEmailText(self, data, train_index, places):
+        text = data.trains[train_index][0].strftime("%d.%m.%Y")
+        text += "\n%s - %s\n" % (data.route_from, data.route_to)
+        text += "Поезд %s\n" % data.trains[train_index][1]
+        text += "В продаже имеются следующие места:"
+        for car in places:
+            type = ""
+            if car[1] == 1:
+                type = "Плацкартный"
+            elif car[1] == 2:
+                type = "Купейный"
+            elif car[1] == 3:
+                type = "СВ"
+            text += "\nВагон №%02d (%s): " % (car[0], type)
+            for place in car[2]:
+                text += str(place[0])
+                if len(place) > 1:
+                    if place[1] == 0:
+                        text += "Ц"
+                    elif place[1] == 1:
+                        text += "М"
+                    elif place[1] == 2:
+                        text += "Ж"
+                    elif place[1] == 3:
+                        text += "С"
+                if place != car[2][len(car[2]) - 1]:
+                    text += ", "
+        print text
+        

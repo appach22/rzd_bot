@@ -36,15 +36,6 @@ class MZAParser(HTMLParser):
 
     def handle_data(self, data):
       if self.h == 1 :
-##        data = unicode(data, "UTF-8")
-##        index = data.find(u"№ ")
-##        index1 = data.find(u"от станции")
-##        index2 = data.find(u"до станции")
-##        index3 = data.find(u" на ")
-##        print data[index3+4:],
-##        train = u"поезд №" + data[index+2:index+6]
-##        print train.encode("UTF-8")
-##        print data[index1+11:index2-1].encode("UTF-8") + "-" +  data[index2+11:index3].encode("UTF-8")
         self.h = 0
       if self.inHeader :
         data = unicode(data, "UTF-8")

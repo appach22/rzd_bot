@@ -7,7 +7,8 @@ from trackingData import TrackingData
 
 data = TrackingData()
 data.route_from = "САНКТ-ПЕТЕРБУРГ" 
-data.route_to = "МОСКВА" 
+data.route_to = "МОСКВА"
+data.car_type = 2
 data.trains.append([date(2011, 2, 17), "055А"])
 #data.trains.append([date(2011, 3, 1), "143А"])
 #data.emails.append("s.stasishin@gmail.com")
