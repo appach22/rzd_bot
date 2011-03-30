@@ -116,7 +116,6 @@ class Bot:
         self.run(data)
         
     def run(self, data):
-        print "RUNNED"
         prevs = [0 for i in range(len(data.trains))]
         while True:
             if datetime.now().hour == 3:
