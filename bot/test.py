@@ -1,21 +1,26 @@
 #coding=utf-8
 
 from datetime import date
+import simplejson
 from bot import Bot
 from trackingData import TrackingData
 
 
-data = TrackingData()
-data.route_from = "САНКТ-ПЕТЕРБУРГ" 
-data.route_to = "МОСКВА"
-data.car_type = 2
-data.trains.append([date(2011, 2, 17), "055А"])
-#data.trains.append([date(2011, 3, 1), "143А"])
-#data.emails.append("s.stasishin@gmail.com")
-#data.emails.append("alevtina.minchukova@gmail.com")
-#data.sms = ["79062714417", "79052300211"]
 bot = Bot()
-res = bot.start(data)
+res_str = bot.call('''{ "method":"start",
+                    "params": [                    
+                    {   "route_from":"САНКТ-ПЕТЕРБУРГ",
+                        "route_to":"МОСКВА",
+                        "trains":[[1234567, "143"], [1273478, "577"]],
+                        "car_type":1,
+                        "emails":["s.stasishin@gmail.com", "stasishin@speechpro.com"],
+                        "sms":["79062714417"],
+                        "expires":12378789,
+                        "period":3600
+                    }]
+                  }''')
+res = simplejson.loads(res_str)
+print res                
 if res == -1:
     print "Server error:", bot.HTTPError
 elif res == 1:

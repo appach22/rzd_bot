@@ -1,4 +1,6 @@
-﻿from datetime import date
+#coding=utf-8
+
+from datetime import date
 from datetime import datetime
 import time
 from datetime import timedelta
@@ -8,6 +10,8 @@ import urllib2
 import signal
 import sys
 import daemon
+import simplejson
+
 
 import pageChecker
 from mailer import Mailer
@@ -25,7 +29,10 @@ class Bot:
     active = False
     terminated = False
 
-    def start(self, data):
+    def start(self, data_dict):
+
+        data = trackingData.TrackingData()
+        data.loadFromDict(data_dict)
 ##        # Проверяем диапазон дат    
 ##        dates = sorted(data.trains.keys())
 ##        if (dates[len(dates) - 1] - dates[0]) > timedelta(2):
@@ -71,7 +78,7 @@ class Bot:
         self.mailer = Mailer()
         data.uid = str(os.getpid())
         print "pid=%s" % data.uid
-        if (data.saveToFile("./pending/" + data.uid)):
+        if (data.saveToFile("./working/" + data.uid)):
             self.mailer.send("robot@rzdtickets.ru", 
                         ["s.stasishin@gmail.com"],
                         "Tracker error",
@@ -82,12 +89,12 @@ class Bot:
                     data.emails,
                     "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
                     "plain",
-                    "Ваша заявка принята. Заявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
+                    "Ваша заявка принята и запущена в работу. Заявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
         
         self.sms = SMS()
         self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data.sms)
         
-        signal.signal(signal.SIGHUP, self.activate)
+        #signal.signal(signal.SIGHUP, self.activate)
         signal.signal(signal.SIGINT, self.shutdown)
         
         self.runPending(data)
@@ -101,12 +108,12 @@ class Bot:
         self.terminated = True
         
     def runPending(self, data):
-        while not self.active:
-            time.sleep(60)
-            if self.terminated:
-                sys.exit(0)
+##        while not self.active:
+##            time.sleep(60)
+##            if self.terminated:
+##                sys.exit(0)
                 
-        os.rename("./pending/" + data.uid, "./working/" + data.uid)
+##        os.rename("./pending/" + data.uid, "./working/" + data.uid)
         self.mailer.send("robot@rzdtickets.ru", 
                     data.emails,
                     "Заявка %s активирована" % data.uid,
@@ -181,4 +188,27 @@ class Bot:
                 if place != car[2][len(car[2]) - 1]:
                     text += ", "
         print text
+
+    def call(self, request_text):
+        try:
+            rawreq = simplejson.loads(request_text)
+##            id = rawreq.get('id', 0)
+            method = rawreq['method']
+            params = rawreq.get('params', [])
+
+            responseDict = {}
+
+            try:
+                response = getattr(self, method, None)(*params)
+                responseDict['result'] = response
+                responseDict['error'] = None
+            except Exception as err:
+                responseDict['error'] = err.args
+
+            json_str = simplejson.dumps(responseDict)
+        except:
+            raise
+        else:
+            pass
+        return json_str
         
