@@ -40,30 +40,36 @@ class Bot:
         # Проверяем на корректность номера поездов и даты
         checker = pageChecker.MZAErrorChecker()
         res = 0
+        ret = {}
         for i in range(len(data.trains)):
             self.itemIndex = i
             try:
                 request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
                 response = urllib2.urlopen(request)
             except urllib2.HTTPError as err:
-                self.HTTPError = err.code
-                res = -1
-                break
+                ret["code"] = 3
+                ret["HTTPError"] = str(err.code)
+                return ret
             except urllib2.URLError as err:
-                self.HTTPError = err.reason
-                res = -1
-                break
+                ret["code"] = 3
+                ret["HTTPError"] = str(err.reason)
+                return ret
             res = checker.CheckPage(response.read())
-            if res == 1: #express-3 request error: check Bot.errorText
-                self.errorText = checker.errorText
-                break
-            elif res == 2: #train number is ambiguous: check Bot.options
-                self.options = checker.options
-                break
+            if res == 1: #express-3 request error
+                ret["code"] = 1
+                ret["TrainIndex"] = i
+                ret["ExpressError"] = checker.errorText
+                return ret
+            elif res == 2: #train number is ambiguous
+                ret["code"] = 2
+                ret["TrainIndex"] = i
+                ret["TrainOptions"] = checker.options
+                return ret
         
         #return on error
         if res != 0:    
-            return res
+            ret["code"] = res
+            return ret
         
         data.expires = sorted(data.trains)[len(data.trains) - 1][0] + timedelta(1)
         
@@ -72,7 +78,8 @@ class Bot:
         #p.daemon = True
         self.p.start()
             
-        return 0
+        ret["code"] = 0
+        return ret
         
     def newTracking(self, data):
         self.mailer = Mailer()
@@ -192,7 +199,6 @@ class Bot:
     def call(self, request_text):
         try:
             rawreq = simplejson.loads(request_text)
-##            id = rawreq.get('id', 0)
             method = rawreq['method']
             params = rawreq.get('params', [])
 

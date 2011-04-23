@@ -31,7 +31,7 @@ class TrackingData:
         return  "TrainPlaces_DepDate=" + train[0].strftime("%d.%m.%Y") + \
                 "&TrainPlaces_StationFrom=" + self.route_from.encode("utf-8") + \
                 "&TrainPlaces_StationTo=" + self.route_to.encode("utf-8") + \
-                "&TrainPlaces_TrainN=" + train[1] + \
+                "&TrainPlaces_TrainN=" + train[1].encode("utf-8") + \
                 "&spr=TrainPlaces" + \
                 "&submit_TrainPlaces=Показать"
                 
@@ -89,6 +89,6 @@ class TrackingData:
             self.sms = dict["sms"]
             self.expires = date.fromtimestamp(dict["expires"])
             self.period = dict["period"]
-            self.uid = 0
+            self.uid = dict["uid"]
         except:
             raise
