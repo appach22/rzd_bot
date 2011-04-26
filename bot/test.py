@@ -11,13 +11,13 @@ res_str = bot.call('''{ "method":"start",
                     "params": [                    
                     {   "route_from":"САНКТ-ПЕТЕРБУРГ",
                         "route_to":"МОСКВА",
-                        "trains":[[1234567, "143А"], [1273478, "577"]],
+                        "trains":[[1305147600, "055А"], [1305147600, "051А"]],
                         "car_type":1,
                         "emails":["s.stasishin@gmail.com", "stasishin@speechpro.com"],
-                        "sms":["79062714417"],
+                        "sms":[],
                         "expires":12378789,
-                        "period":3600,
-                        "uid":123456
+                        "period":60,
+                        "uid":123460
                     }]
                   }''')
 ret = simplejson.loads(res_str)

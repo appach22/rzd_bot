@@ -83,9 +83,8 @@ class Bot:
         
     def newTracking(self, data):
         self.mailer = Mailer()
-        data.uid = str(os.getpid())
-        print "pid=%s" % data.uid
-        if (data.saveToFile("./working/" + data.uid)):
+        data.pid = os.getpid()
+        if not data.saveToDB():
             self.mailer.send("robot@rzdtickets.ru", 
                         ["s.stasishin@gmail.com"],
                         "Tracker error",
