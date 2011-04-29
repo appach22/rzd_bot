@@ -9,7 +9,7 @@ import os
 import urllib2
 import signal
 import sys
-import daemon
+#import daemon
 import simplejson
 
 
@@ -194,6 +194,17 @@ class Bot:
                 if place != car[2][len(car[2]) - 1]:
                     text += ", "
         print text
+        
+    def getStations(self, prefix):
+        response = "[]"
+        try:
+            request = urllib2.Request(url="http://www.mza.ru/express/include/station.php", data=prefix.encode("utf-8"))
+            response = urllib2.urlopen(request).read()
+        except urllib2.HTTPError as err:
+            pass
+        except urllib2.URLError as err:
+            pass
+        return response
 
     def call(self, request_text):
         try:
@@ -201,6 +212,7 @@ class Bot:
             method = rawreq['method']
             params = rawreq.get('params', [])
 
+            response = ""
             responseDict = {}
 
             try:
@@ -210,7 +222,10 @@ class Bot:
             except Exception as err:
                 responseDict['error'] = err.args
 
-            json_str = simplejson.dumps(responseDict)
+            if not method == "getStations":
+                json_str = simplejson.dumps(responseDict)
+            else:
+                json_str = response
         except:
             raise
         else:

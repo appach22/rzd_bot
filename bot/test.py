@@ -4,20 +4,23 @@ from datetime import date
 import simplejson
 from bot import Bot
 from trackingData import TrackingData
-
+import sys
 
 bot = Bot()
+#res_str = bot.call('''{"method":"getStations", "params":["value=САН"]}''')
+#print "Result: ", res_str
+#sys.exit(0)
 res_str = bot.call('''{ "method":"start",
                     "params": [                    
                     {   "route_from":"САНКТ-ПЕТЕРБУРГ",
                         "route_to":"МОСКВА",
                         "trains":[[1305147600, "055А"], [1305147600, "051А"]],
                         "car_type":1,
-                        "emails":["s.stasishin@gmail.com", "stasishin@speechpro.com"],
+                        "emails":["stasishin@speechpro.com"],
                         "sms":[],
                         "expires":12378789,
                         "period":60,
-                        "uid":123460
+                        "uid":123461
                     }]
                   }''')
 ret = simplejson.loads(res_str)
