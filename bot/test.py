@@ -1,6 +1,7 @@
 #coding=utf-8
 
 from datetime import date
+import time
 import simplejson
 from bot import Bot
 from trackingData import TrackingData
@@ -40,7 +41,7 @@ res_str = bot.call('''{ "method":"start",
                         "sms":[],
                         "expires":12378789,
                         "period":60,
-                        "uid":123467
+                        "uid":123474
                     }]
                   }''')
 ret = simplejson.loads(res_str)
@@ -62,17 +63,8 @@ else:
     elif res_code == 0:
         print "OK!"
         
-##if res == -1:
-##    print "Server error:", bot.HTTPError
-##elif res == 1:
-##    print "Express-3 error:", bot.errorText
-##elif res == 2:
-##    text = ""
-##    for i in range(len(bot.options)):
-##        text = text + '<b>' + bot.options[i][0] + '</b> - ' + '<i>' + bot.options[i][1] + '</i><br/>'
-##    testMailer = mailer.Mailer()
-##    testMailer.send("robot@rzdtickets.ru", ["s.stasishin@gmail.com"], "Тестовое сообщение", "html", text)
-##elif res == 3:
-##    print "Error: date range is too large"
-##else:
-##    print "OK"
+        time.sleep(60)
+        res_str = bot.call('''{ "method":"stop",
+                        "params":[123474, "s.stasishin@gmail.com"]}
+                   ''')
+        print res_str

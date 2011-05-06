@@ -228,11 +228,63 @@ class TrackingData:
                     self.creation_date = row[4]
                     self.route_from = row[5].encode("utf-8")
                     self.route_to = row[6].encode("utf-8")
+                    trains = row[8].split(',')
+                    for t in trains:
+                        self.trains.append([row[7], t])
+                    trains = row[10].split(',')
+                    for t in trains:
+                        self.trains.append([row[9], t])
+                    trains = row[12].split(',')
+                    for t in trains:
+                        self.trains.append([row[11], t])
+                    self.car_type = row[16]
+                    self.ip_addr = row[17]
+                    self.sms_count = row[18]
                     
                     print row[5].encode("utf-8")
-                    print "Found %d, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %s, %d" % \
-                    (row[0], row[1], row[2], row[3], row[4], row[5].encode("utf-8"), row[6].encode("utf-8"), row[7],
-                     row[8], row[9], row[10], row[11], row[12], row[16], row[17], row[18])
+##                    print "Found %d, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %s, %d" % \
+##                    (row[0], row[1], row[2], row[3], row[4], row[5].encode("utf-8"), row[6].encode("utf-8"), row[7],
+##                     row[8], row[9], row[10], row[11], row[12], row[16], row[17], row[18])
+                    print self.trains
+
+                    query = """SELECT * FROM bot_dynamic_info WHERE uid = %d""" % uid
+                    cursor.execute(query)
+                    row = cursor.fetchone()
+                    if not row == None:
+                        self.pid = row[1]
+                        self.expires = row[2]
+
+                except MySQLdb.Error, e:
+                    print "Error %d: %s" % (e.args[0], e.args[1])
+                    return 1
+                finally:
+                    cursor.close()
+            finally:
+                conn.close()
+
+        return 0
+
+    def removeDynamicData(self):
+        try:
+            conn = MySQLdb.connect(host = host,
+                                   user = user,
+                                   passwd = passw,
+                                   db = database,
+                                   charset = "utf8", 
+                                   use_unicode = True)
+        except MySQLdb.Error, e:
+            print "Error %d: %s" % (e.args[0], e.args[1])
+            return 1
+        else:
+            try:
+                cursor = conn.cursor()
+            except MySQLdb.Error, e:
+                print "Error %d: %s" % (e.args[0], e.args[1])
+                return 1
+            else:
+                try:    
+                    query = """DELETE FROM bot_dynamic_info WHERE uid = %d""" % self.uid
+                    cursor.execute(query)
                 except MySQLdb.Error, e:
                     print "Error %d: %s" % (e.args[0], e.args[1])
                     return 1

@@ -24,10 +24,10 @@ from filter import PlacesFilter
         
 class Bot:
     """The main class"""
-    
-    post_data = []
-    active = False
-    terminated = False
+
+    def __init__(self):
+#        self.active = False
+        self.terminated = False
 
     def start(self, data_dict):
 
@@ -112,7 +112,7 @@ class Bot:
     def run(self, data):
         print "RUNNED"
         prevs = [0 for i in range(len(data.trains))]
-        while True:
+        while not self.terminated:
             if datetime.now().hour == 3:
                 time.sleep(60)
                 continue
@@ -146,6 +146,13 @@ class Bot:
                 prevs[i] = curr
             
             time.sleep(data.period)
+
+        self.mailer.send("robot@rzdtickets.ru", 
+                    data.emails,
+                    "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
+                    "plain",
+                    "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
+        print "BYE!"
 
     def makeEmailText(self, data, train_index, places):
         text = data.trains[train_index][0].strftime("%d.%m.%Y")
@@ -182,7 +189,15 @@ class Bot:
         ret["code"] = data.loadFromDB(uid)
         if not ret["code"] == 0:
             return ret
-        #if 
+        if not email in data.emails:
+            ret["code"] = 3
+            return ret
+        if data.pid == -1:
+            ret["code"] = 4
+            return ret
+        print "killing ", data.pid
+        os.kill(data.pid, signal.SIGINT)
+        data.removeDynamicData()
         return ret
         
     def call(self, request_text):
