@@ -2,14 +2,14 @@
 
 from datetime import date
 from datetime import datetime
-import time
 from datetime import timedelta
+import time
 from multiprocessing import Process
 import os
 import urllib2
 import signal
 import sys
-#import daemon
+import daemon
 import simplejson
 
 
@@ -33,10 +33,6 @@ class Bot:
 
         data = trackingData.TrackingData()
         data.loadFromDict(data_dict)
-##        # Проверяем диапазон дат    
-##        dates = sorted(data.trains.keys())
-##        if (dates[len(dates) - 1] - dates[0]) > timedelta(2):
-##            return 3 #Date range is too large
         # Проверяем на корректность номера поездов и даты
         checker = pageChecker.MZAErrorChecker()
         res = 0
@@ -86,10 +82,10 @@ class Bot:
         data.pid = os.getpid()
         if not data.saveToDB():
             self.mailer.send("robot@rzdtickets.ru", 
-                        ["s.stasishin@gmail.com"],
-                        "Tracker error",
+                        data.emails + ["s.stasishin@gmail.com"],
+                        "Ошибка базы данных",
                         "plain",
-                        "Error saving tracking data!")
+                        "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
             return
         self.mailer.send("robot@rzdtickets.ru", 
                     data.emails,
@@ -103,7 +99,7 @@ class Bot:
         #signal.signal(signal.SIGHUP, self.activate)
         signal.signal(signal.SIGINT, self.shutdown)
         
-        self.runPending(data)
+        self.run(data)
         
                     
     def activate(self, signum, frame):
@@ -112,29 +108,14 @@ class Bot:
     def shutdown(self, signum, frame):
         print "SHUTDOWNED"
         self.terminated = True
-        
-    def runPending(self, data):
-##        while not self.active:
-##            time.sleep(60)
-##            if self.terminated:
-##                sys.exit(0)
-                
-##        os.rename("./pending/" + data.uid, "./working/" + data.uid)
-        self.mailer.send("robot@rzdtickets.ru", 
-                    data.emails,
-                    "Заявка %s активирована" % data.uid,
-                    "plain",
-                    "Заявка %s запущена в работу" % data.uid)
-        self.sms.send("Tickets", "Заявка %s запущена в работу" % data.uid, data.sms)
-        self.run(data)
-        
+             
     def run(self, data):
+        print "RUNNED"
         prevs = [0 for i in range(len(data.trains))]
         while True:
             if datetime.now().hour == 3:
                 time.sleep(60)
                 continue
-            print data.trains
             for i in range(len(data.trains)):
                 try:
                     request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
@@ -156,12 +137,12 @@ class Bot:
                     # new tickets have arrived!!!
                     print "%d ==> %d" % (prevs[i], curr)
                     self.makeEmailText(data, i, filter.filteredPlaces)
-##                    self.mailer.send("robot@rzdtickets.ru", 
-##                                data.emails,
-##                                "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
-##                                "plain",
-##                                self.makeEmailText(data, i, filter.filteredPlaces))
-##                    self.sms.send("Tickets", "Заявка %s запущена в работу" % data.uid, data.sms)
+                    self.mailer.send("robot@rzdtickets.ru", 
+                                data.emails,
+                                "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
+                                "plain",
+                                self.makeEmailText(data, i, filter.filteredPlaces))
+                    self.sms.send("Tickets", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data.sms)
                 prevs[i] = curr
             
             time.sleep(data.period)
@@ -193,26 +174,23 @@ class Bot:
                         text += "С"
                 if place != car[2][len(car[2]) - 1]:
                     text += ", "
-        print text
-        
-    def getStations(self, prefix):
-        response = "[]"
-        try:
-            request = urllib2.Request(url="http://www.mza.ru/express/include/station.php", data=prefix.encode("utf-8"))
-            response = urllib2.urlopen(request).read()
-        except urllib2.HTTPError as err:
-            pass
-        except urllib2.URLError as err:
-            pass
-        return response
+        return text
 
+    def stop(self, uid, email):
+        data = trackingData.TrackingData()
+        ret = {}
+        ret["code"] = data.loadFromDB(uid)
+        if not ret["code"] == 0:
+            return ret
+        #if 
+        return ret
+        
     def call(self, request_text):
         try:
             rawreq = simplejson.loads(request_text)
             method = rawreq['method']
             params = rawreq.get('params', [])
 
-            response = ""
             responseDict = {}
 
             try:
@@ -222,10 +200,7 @@ class Bot:
             except Exception as err:
                 responseDict['error'] = err.args
 
-            if not method == "getStations":
-                json_str = simplejson.dumps(responseDict)
-            else:
-                json_str = response
+            json_str = simplejson.dumps(responseDict)
         except:
             raise
         else:
