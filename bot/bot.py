@@ -114,15 +114,11 @@ class Bot:
     def run(self, data):
         print "RUNNED"
         prevs = [0 for i in range(len(data.trains))]
-        print "1"
         while not self.terminated and data.expires > date.today():
-            print "2"
             if datetime.now().hour == 3:
                 time.sleep(60)
                 continue
-            print "3"
             for i in range(len(data.trains)):
-                print "4"
                 try:
                     request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
                     response = urllib2.urlopen(request)
@@ -137,7 +133,6 @@ class Bot:
                 if parser.ParsePage(response.read()) != 0:
                     continue
                 
-                print "5"
                 filter = PlacesFilter()
                 curr = filter.applyFilter(parser.result, data)
                 if curr > prevs[i]:
@@ -152,7 +147,6 @@ class Bot:
                     self.sms.send("Tickets", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data.sms)
                 prevs[i] = curr
             
-            print "6"
             time.sleep(data.period)
 
         print self.terminated, data.expires <= date.today()

@@ -5,7 +5,7 @@ import MySQLdb
 def prepareDatabase():
     try:
         conn = MySQLdb.connect(host = "localhost",
-                               user = "root",
+                               user = "rzdbot",
                                passwd = "rzdtickets22",
                                charset = "utf8", 
                                use_unicode = True)
@@ -20,7 +20,7 @@ def prepareDatabase():
             return False
         else:
             try:
-                cursor.execute("CREATE DATABASE IF NOT EXISTS rzdbot CHARACTER SET utf8")
+                cursor.execute("CREATE DATABASE IF NOT EXISTS `rzdtickets.ru` CHARACTER SET utf8")
             except MySQLdb.Error, e:
                 print "Error %d: %s" % (e.args[0], e.args[1])
                 return False
@@ -71,7 +71,7 @@ def prepareTables():
                         places_range_low    TINYINT,    
                         places_range_high   TINYINT,
                         places_parity       TINYINT,
-                        car_type            TINYINT NOT NULL,
+                        car_type            VARCHAR(16),
                         ip_addr             VARCHAR(24),
                         sms_count           SMALLINT,
                         PRIMARY KEY (uid)
