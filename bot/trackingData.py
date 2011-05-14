@@ -8,7 +8,7 @@ import MySQLdb
 
 host = "localhost"
 database = "rzdtickets.ru"
-user = "root"
+user = "rzdbot"
 passw = "rzdtickets22"
 
 class TrackingData:

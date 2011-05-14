@@ -6,10 +6,9 @@ def prepareDatabase():
     try:
         conn = MySQLdb.connect(host = "localhost",
                                user = "root",
-                               passwd = "123456",
+                               passwd = "rzdtickets22",
                                charset = "utf8", 
-                               use_unicode = True)#,
-                               #db = "test")
+                               use_unicode = True)
     except MySQLdb.Error, e:
         print "Error %d: %s" % (e.args[0], e.args[1])
         return False
@@ -36,7 +35,7 @@ def prepareDatabase():
 def prepareTables():
     try:
         conn = MySQLdb.connect(#host = "%",
-                               user = "root",
+                               user = "rzdbot",
                                passwd = "rzdtickets22",
                                db = "rzdtickets.ru",
                                charset = "utf8", 
