@@ -56,7 +56,7 @@ def prepareTables():
                 cursor.execute("""
                     CREATE TABLE bot_static_info
                     (
-                        uid                 INT,
+                        uid                 INT UNSIGNED NOT NULL AUTO_INCREMENT,
                         username            VARCHAR(40),
                         emails              VARCHAR(128) NOT NULL,
                         sms                 VARCHAR(24),    

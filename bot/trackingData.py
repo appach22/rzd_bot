@@ -168,18 +168,20 @@ class TrackingData:
                                     trains3 = trains[2]
                                                                 
                     query = """INSERT INTO bot_static_info 
-                                (uid, username, emails, sms, creation_date,
+                                (username, emails, sms, creation_date,
                                  station_from, station_to, date1, trains1,
                                  date2, trains2, date3, trains3, car_type,
                                  ip_addr, sms_count)
-                                 VALUES(%d, '%s', '%s', '%s', NOW(), '%s', '%s',
+                                 VALUES('%s', '%s', '%s', NOW(), '%s', '%s',
                                  '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', %d)""" % \
-                                (self.uid, self.username, ','.join(str(n) for n in self.emails), 
+                                (self.username, ','.join(str(n) for n in self.emails), 
                                  ','.join(str(n) for n in self.sms), 
                                  self.route_from, self.route_to, date1, trains1,
                                  date2, trains2, date3, trains3, self.car_type,
                                  self.ip_addr, self.sms_count)
                     cursor.execute(query)
+                    self.uid = cursor.lastrowid
+                    print "uid=%d" % self.uid
 
                     query = """INSERT INTO bot_dynamic_info
                             (uid, pid, expiration_date)
@@ -284,6 +286,37 @@ class TrackingData:
             else:
                 try:    
                     query = """DELETE FROM bot_dynamic_info WHERE uid = %d""" % self.uid
+                    cursor.execute(query)
+                except MySQLdb.Error, e:
+                    print "Error %d: %s" % (e.args[0], e.args[1])
+                    return 1
+                finally:
+                    cursor.close()
+            finally:
+                conn.close()
+
+        return 0
+
+    def updateDynamicData(self):
+        try:
+            conn = MySQLdb.connect(host = host,
+                                   user = user,
+                                   passwd = passw,
+                                   db = database,
+                                   charset = "utf8", 
+                                   use_unicode = True)
+        except MySQLdb.Error, e:
+            print "Error %d: %s" % (e.args[0], e.args[1])
+            return 1
+        else:
+            try:
+                cursor = conn.cursor()
+            except MySQLdb.Error, e:
+                print "Error %d: %s" % (e.args[0], e.args[1])
+                return 1
+            else:
+                try:    
+                    query = """UPDATE bot_dynamic_info SET pid = %d WHERE uid = %d""" % (self.pid, self.uid)
                     cursor.execute(query)
                 except MySQLdb.Error, e:
                     print "Error %d: %s" % (e.args[0], e.args[1])

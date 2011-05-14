@@ -70,32 +70,34 @@ class Bot:
         data.expires = sorted(data.trains)[len(data.trains) - 1][0] + timedelta(1)
         
         #start new bot
-        self.p = Process(target = self.newTracking, args = (data, ))
+        self.p = Process(target = self.newTracking, args = (data, False))
         #p.daemon = True
         self.p.start()
             
         ret["code"] = 0
         return ret
         
-    def newTracking(self, data):
+    def newTracking(self, data, isRestart):
         self.mailer = Mailer()
-        data.pid = os.getpid()
-        if not data.saveToDB():
-            self.mailer.send("robot@rzdtickets.ru", 
-                        data.emails + ["s.stasishin@gmail.com"],
-                        "Ошибка базы данных",
-                        "plain",
-                        "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
-            return
-        self.mailer.send("robot@rzdtickets.ru", 
-                    data.emails,
-                    "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
-                    "plain",
-                    "Ваша заявка принята и запущена в работу. Заявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
-        
         self.sms = SMS()
-        self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data.sms)
+        data.pid = os.getpid()
+        if not isRestart:
+            if not data.saveToDB():
+                self.mailer.send("robot@rzdtickets.ru", 
+                            data.emails + ["s.stasishin@gmail.com"],
+                            "Ошибка базы данных",
+                            "plain",
+                            "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
+                return
+            self.mailer.send("robot@rzdtickets.ru", 
+                        data.emails,
+                        "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
+                        "plain",
+                        "Ваша заявка принята и запущена в работу. Заявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
         
+            self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data.sms)
+        else:
+            data.updateDynamicInfo()
         #signal.signal(signal.SIGHUP, self.activate)
         signal.signal(signal.SIGINT, self.shutdown)
         
@@ -112,11 +114,15 @@ class Bot:
     def run(self, data):
         print "RUNNED"
         prevs = [0 for i in range(len(data.trains))]
-        while not self.terminated:
+        print "1"
+        while not self.terminated and data.expires > date.today():
+            print "2"
             if datetime.now().hour == 3:
                 time.sleep(60)
                 continue
+            print "3"
             for i in range(len(data.trains)):
+                print "4"
                 try:
                     request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
                     response = urllib2.urlopen(request)
@@ -131,6 +137,7 @@ class Bot:
                 if parser.ParsePage(response.read()) != 0:
                     continue
                 
+                print "5"
                 filter = PlacesFilter()
                 curr = filter.applyFilter(parser.result, data)
                 if curr > prevs[i]:
@@ -145,13 +152,16 @@ class Bot:
                     self.sms.send("Tickets", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data.sms)
                 prevs[i] = curr
             
+            print "6"
             time.sleep(data.period)
 
-        self.mailer.send("robot@rzdtickets.ru", 
-                    data.emails,
-                    "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
-                    "plain",
-                    "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
+        print self.terminated, data.expires <= date.today()
+        if self.terminated:
+            self.mailer.send("robot@rzdtickets.ru", 
+                        data.emails,
+                        "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
+                        "plain",
+                        "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
         print "BYE!"
 
     def makeEmailText(self, data, train_index, places):

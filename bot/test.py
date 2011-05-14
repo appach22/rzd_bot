@@ -8,11 +8,6 @@ from trackingData import TrackingData
 import sys
 
 bot = Bot()
-##res_str = bot.call('''{ "method":"stop",
-##                        "params":[123460, "s.stasishin@gmail.com"]}
-##                   ''')
-##print res_str
-##sys.exit(0)
 res_str = bot.call('''{ "method":"start",
                     "params": [
                     {   "route_from":"САНКТ-ПЕТЕРБУРГ",
@@ -65,6 +60,6 @@ else:
         
         time.sleep(60)
         res_str = bot.call('''{ "method":"stop",
-                        "params":[123474, "s.stasishin@gmail.com"]}
+                        "params":[5, "s.stasishin@gmail.com"]}
                    ''')
         print res_str
