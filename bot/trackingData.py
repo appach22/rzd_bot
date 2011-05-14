@@ -78,8 +78,8 @@ class TrackingData:
             temp_trains = []
             for i in range(len(raw_trains)):
                 temp_trains.append([date.fromtimestamp(raw_trains[i][0]), raw_trains[i][1].encode("utf-8")])
-            for i in range(3 - len(raw_trains)):
-                temp_trains.trains.append([date.fromtimestamp(0), ""])
+            #for i in range(3 - len(raw_trains)):
+            #    temp_trains.trains.append([date.fromtimestamp(0), ""])
             # Удаляем повторы    
             temp_trains.sort()
             last = temp_trains[-1]

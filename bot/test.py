@@ -14,22 +14,7 @@ res_str = bot.call('''{ "method":"start",
                         "route_to":"МОСКВА",
                         "trains":[
                                   [1305510400, "049А"],
-                                  
-                                  
-                                  
-                                  
-                                  
-                                  [1305320400, "175Н"],
-                                  [1305320400, "175Н"],
-                                  [1305320400, "145А"],
-                                  [1305320400, "081М"],
-                                  [1305320400, "121А"],
-                                  
-                                  
-                                  
                                   [1305511100, "121А"]
-                                  
-                                  
                                   ],
                         "car_type":1,
                         "emails":["s.stasishin@gmail.com", "stasishin@speechpro.com"],
@@ -60,6 +45,6 @@ else:
         
         time.sleep(60)
         res_str = bot.call('''{ "method":"stop",
-                        "params":[3, "s.stasishin@gmail.com"]}
+                        "params":[8, "s.stasishin@gmail.com"]}
                    ''')
         print res_str
