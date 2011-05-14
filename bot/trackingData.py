@@ -7,9 +7,9 @@ import pickle
 import MySQLdb
 
 host = "localhost"
-database = "rzdbot"
+database = "rzdtickets.ru"
 user = "root"
-passw = "123456"
+passw = "rzdtickets22"
 
 class TrackingData:
     

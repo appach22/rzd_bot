@@ -9,7 +9,7 @@ import os
 import urllib2
 import signal
 import sys
-import daemon
+#import daemon
 import simplejson
 
 

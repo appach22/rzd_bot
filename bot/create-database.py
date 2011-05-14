@@ -35,10 +35,10 @@ def prepareDatabase():
 
 def prepareTables():
     try:
-        conn = MySQLdb.connect(host = "localhost",
+        conn = MySQLdb.connect(#host = "%",
                                user = "root",
-                               passwd = "123456",
-                               db = "rzdbot",
+                               passwd = "rzdtickets22",
+                               db = "rzdtickets.ru",
                                charset = "utf8", 
                                use_unicode = True)
     except MySQLdb.Error, e:
@@ -103,5 +103,5 @@ def CreateTask(data):
     pass
 
 
-print prepareDatabase()
+#print prepareDatabase()
 print prepareTables()
