@@ -11,6 +11,7 @@ import signal
 import sys
 #import daemon
 import simplejson
+from syslog import syslog
 
 
 import pageChecker
@@ -99,7 +100,8 @@ class Bot:
         
             self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data.sms)
         else:
-            data.updateDynamicInfo()
+            data.updateDynamicData()
+            
         #signal.signal(signal.SIGHUP, self.activate)
         signal.signal(signal.SIGINT, self.shutdown)
         

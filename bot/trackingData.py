@@ -5,6 +5,7 @@ from datetime import timedelta
 import simplejson
 import pickle
 import MySQLdb
+from syslog import syslog
 
 host = "localhost"
 database = "rzdtickets.ru"
@@ -230,15 +231,22 @@ class TrackingData:
                     self.creation_date = row[4]
                     self.route_from = row[5].encode("utf-8")
                     self.route_to = row[6].encode("utf-8")
-                    trains = row[8].split(',')
+                    trains = row[8].encode("utf-8").split(',')
+                    print "1", trains
                     for t in trains:
-                        self.trains.append([row[7], t])
-                    trains = row[10].split(',')
+                        if not len(t) == 0:
+                            self.trains.append([row[7], t])
+                    trains = row[10].encode("utf-8").split(',')
+                    print "2", trains
                     for t in trains:
-                        self.trains.append([row[9], t])
-                    trains = row[12].split(',')
+                        if not len(t) == 0:
+                            self.trains.append([row[9], t])
+                    trains = row[12].encode("utf-8").split(',')
+                    print "3", trains
                     for t in trains:
-                        self.trains.append([row[11], t])
+                        if not len(t) == 0:
+                            self.trains.append([row[11], t])
+                    print "4", self.trains
                     self.car_type = row[16]
                     self.ip_addr = row[17]
                     self.sms_count = row[18]
