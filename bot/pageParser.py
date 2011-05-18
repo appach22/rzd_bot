@@ -1,7 +1,7 @@
 #coding=UTF-8
 
-from HTMLParser import HTMLParser
 import sys
+from HTMLParser import HTMLParser
 
 class MZAParser(HTMLParser):
 
@@ -39,15 +39,18 @@ class MZAParser(HTMLParser):
         self.h = 0
       if self.inHeader :
         data = unicode(data, "UTF-8")
-        if data.find(u"Плацкартный") != -1:
+        if data.find(u"Сидячий") != -1:
           self.inType = True
           self.carType = 1
-        elif data.find(u"Купейный") != -1:
+        if data.find(u"Плацкартный") != -1:
           self.inType = True
           self.carType = 2
-        elif data.find(u"Вагон СВ") != -1:
+        elif data.find(u"Купейный") != -1:
           self.inType = True
           self.carType = 3
+        elif data.find(u"Вагон СВ") != -1:
+          self.inType = True
+          self.carType = 4
       if self.inPlaces :
         data = unicode(data, "UTF-8")
         pos = data.find(u"Свободные места: ")

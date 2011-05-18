@@ -6,6 +6,7 @@ from datetime import timedelta
 import time
 from multiprocessing import Process
 import os
+import dl
 import urllib2
 import signal
 import sys
@@ -19,7 +20,7 @@ from mailer import Mailer
 import getter
 import trackingData
 from sms import SMS
-from parser import MZAParser
+from pageParser import MZAParser
 from filter import PlacesFilter
 
         
@@ -67,15 +68,12 @@ class Bot:
         if res != 0:    
             ret["code"] = res
             return ret
-        
-        data.expires = sorted(data.trains)[len(data.trains) - 1][0] + timedelta(1)
-        
-        #start new bot
-        #self.p = Process(target = self.newTracking, args = (data, False))
-        #p.daemon = True
-        #self.p.start()
-        
-        self.daemonize(target = self.newTracking, args = (data, False))
+
+        try:
+            self.daemonize(target = self.newTracking, args = (data, False))
+        except:
+            ret["code"] = 255
+            return ret
             
         ret["code"] = 0
         return ret
@@ -86,13 +84,13 @@ class Bot:
         data.pid = os.getpid()
         if not isRestart:
             if not data.saveToDB():
-                self.mailer.send("robot@rzdtickets.ru", 
+                self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>',
                             data.emails + ["s.stasishin@gmail.com"],
                             "Ошибка базы данных",
                             "plain",
                             "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
                 return
-            self.mailer.send("robot@rzdtickets.ru", 
+            self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>',
                         data.emails,
                         "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
                         "plain",
@@ -104,7 +102,7 @@ class Bot:
             
         #signal.signal(signal.SIGHUP, self.activate)
         signal.signal(signal.SIGINT, self.shutdown)
-        
+
         self.run(data)
         
                     
@@ -112,11 +110,9 @@ class Bot:
         self.active = True
         
     def shutdown(self, signum, frame):
-        print "SHUTDOWNED"
         self.terminated = True
              
     def run(self, data):
-        print "RUNNED"
         prevs = [0 for i in range(len(data.trains))]
         while not self.terminated and data.expires > date.today():
             if datetime.now().hour == 3:
@@ -141,9 +137,9 @@ class Bot:
                 curr = filter.applyFilter(parser.result, data)
                 if curr > prevs[i]:
                     # new tickets have arrived!!!
-                    print "%d ==> %d" % (prevs[i], curr)
+                    #print "%d ==> %d" % (prevs[i], curr)
                     self.makeEmailText(data, i, filter.filteredPlaces)
-                    self.mailer.send("robot@rzdtickets.ru", 
+                    self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>',
                                 data.emails,
                                 "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
                                 "plain",
@@ -153,14 +149,12 @@ class Bot:
             
             time.sleep(data.period)
 
-        print self.terminated, data.expires <= date.today()
         if self.terminated:
-            self.mailer.send("robot@rzdtickets.ru", 
+            self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>', 
                         data.emails,
                         "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
                         "plain",
                         "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
-        print "BYE!"
         os.exit(0)
 
     def makeEmailText(self, data, train_index, places):
@@ -168,13 +162,16 @@ class Bot:
         text += "\n%s - %s\n" % (data.route_from, data.route_to)
         text += "Поезд %s\n" % data.trains[train_index][1]
         text += "В продаже имеются следующие места:"
+        # TODO: передавать тип вагона полностью
         for car in places:
             type = ""
             if car[1] == 1:
+                type = "Сидячий"
+            if car[1] == 2:
                 type = "Плацкартный"
-            elif car[1] == 2:
-                type = "Купейный"
             elif car[1] == 3:
+                type = "Купейный"
+            elif car[1] == 4:
                 type = "СВ"
             text += "\nВагон №%02d (%s): " % (car[0], type)
             for place in car[2]:
@@ -204,8 +201,11 @@ class Bot:
         if data.pid == -1:
             ret["code"] = 4
             return ret
-        print "killing ", data.pid
-        os.kill(data.pid, signal.SIGINT)
+        try:
+            os.kill(data.pid, signal.SIGINT)
+        except:
+            ret["code"] = 5
+            return ret
         data.removeDynamicData()
         return ret
         
@@ -216,6 +216,8 @@ class Bot:
             params = rawreq.get('params', [])
 
             responseDict = {}
+            responseDict['id'] = rawreq['id']
+            responseDict['jsonrpc'] = rawreq['jsonrpc']
 
             try:
                 response = getattr(self, method, None)(*params)
@@ -237,21 +239,25 @@ class Bot:
             pid = os.fork()
         except OSError, e:
             raise RuntimeError("1st fork failed: %s [%d]" % (e.strerror, e.errno))
-        if pid != 0:
+        if pid == 0:
+            # detach from controlling terminal (to make child a session-leader)
+            os.setsid()
+            libc = dl.open('/lib/libc.so.6')
+            libc.call('prctl', 15, 'bot', 0, 0, 0)
+            try:
+                pid = os.fork()
+            except OSError, e:
+                raise RuntimeError("2nd fork failed: %s [%d]" % (e.strerror, e.errno))
+                raise Exception, "%s [%d]" % (e.strerror, e.errno)
+            if pid == 0:
+                os.chdir("/")
+                os.umask(0)
+            else:
+                # child process is all done
+                os._exit(0)
+        else:
             # parent (calling) process is all done
             return
-
-        # detach from controlling terminal (to make child a session-leader)
-        os.setsid()
-        try:
-            pid = os.fork()
-        except OSError, e:
-            raise RuntimeError("2nd fork failed: %s [%d]" % (e.strerror, e.errno))
-            raise Exception, "%s [%d]" % (e.strerror, e.errno)
-        if pid != 0:
-            # child process is all done
-            os._exit(0)
-
         # grandchild process now non-session-leader, detached from parent
         # grandchild process must now close all open files
         try:
@@ -266,10 +272,13 @@ class Bot:
                pass
 
         # redirect stdin, stdout and stderr to /dev/null
-        os.open("/dev/null", os.O_RDWR) # standard input (0)
+        os.open("/usr/local/bot/outputs/bot.%d.out" % os.getpid(), os.O_RDWR + os.O_CREAT, 0644) # standard input (0)
         os.dup2(0, 1)
         os.dup2(0, 2)
+
+        libc = dl.open('/lib/libc.so.6')
+        libc.call('prctl', 15, 'bot', 0, 0, 0)
         
         target(*args)
-        os._exit(0)
+        os.exit(0)
 

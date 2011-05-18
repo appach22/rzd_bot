@@ -112,12 +112,12 @@ class TrackingData:
             while (self.trains[len(self.trains) - 1][0] - self.trains[0][0]) > timedelta(2):
                 del self.trains[len(self.trains) - 1]
 
-            self.car_type = dict["car_type"]
+            self.car_type = int(dict["car_type"])
             self.emails = dict["emails"]
             self.sms = dict["sms"]
-            self.expires = date.fromtimestamp(dict["expires"])
-            self.period = dict["period"]
-            self.uid = dict["uid"]
+            self.expires = self.trains[len(self.trains) - 1][0] + timedelta(1)
+            self.period = 300
+            self.uid = 0
         except:
             raise
         
@@ -139,7 +139,7 @@ class TrackingData:
                 print "Error %d: %s" % (e.args[0], e.args[1])
                 return False
             else:
-                try:    
+                try:
                     dates = [] 
                     trains = []
                     all_trains = list(self.trains)
@@ -175,14 +175,14 @@ class TrackingData:
                                  ip_addr, sms_count)
                                  VALUES('%s', '%s', '%s', NOW(), '%s', '%s',
                                  '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', %d)""" % \
-                                (self.username, ','.join(str(n) for n in self.emails), 
-                                 ','.join(str(n) for n in self.sms), 
+                                 (self.username,
+                                 ','.join(str(n) for n in self.emails),
+                                 ','.join(str(n) for n in self.sms),
                                  self.route_from, self.route_to, date1, trains1,
                                  date2, trains2, date3, trains3, self.car_type,
                                  self.ip_addr, self.sms_count)
                     cursor.execute(query)
                     self.uid = cursor.lastrowid
-                    print "uid=%d" % self.uid
 
                     query = """INSERT INTO bot_dynamic_info
                             (uid, pid, expiration_date)
@@ -232,31 +232,21 @@ class TrackingData:
                     self.route_from = row[5].encode("utf-8")
                     self.route_to = row[6].encode("utf-8")
                     trains = row[8].encode("utf-8").split(',')
-                    print "1", trains
                     for t in trains:
                         if not len(t) == 0:
                             self.trains.append([row[7], t])
                     trains = row[10].encode("utf-8").split(',')
-                    print "2", trains
                     for t in trains:
                         if not len(t) == 0:
                             self.trains.append([row[9], t])
                     trains = row[12].encode("utf-8").split(',')
-                    print "3", trains
                     for t in trains:
                         if not len(t) == 0:
                             self.trains.append([row[11], t])
-                    print "4", self.trains
                     self.car_type = row[16]
                     self.ip_addr = row[17]
                     self.sms_count = row[18]
                     
-                    print row[5].encode("utf-8")
-##                    print "Found %d, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %s, %d" % \
-##                    (row[0], row[1], row[2], row[3], row[4], row[5].encode("utf-8"), row[6].encode("utf-8"), row[7],
-##                     row[8], row[9], row[10], row[11], row[12], row[16], row[17], row[18])
-                    print self.trains
-
                     query = """SELECT * FROM bot_dynamic_info WHERE uid = %d""" % uid
                     cursor.execute(query)
                     row = cursor.fetchone()
