@@ -325,3 +325,35 @@ class TrackingData:
                 conn.close()
 
         return 0
+
+    def incrementSmsCount(self):
+        try:
+            conn = MySQLdb.connect(host = host,
+                                   user = user,
+                                   passwd = passw,
+                                   db = database,
+                                   charset = "utf8", 
+                                   use_unicode = True)
+        except MySQLdb.Error, e:
+            print "Error %d: %s" % (e.args[0], e.args[1])
+            return 1
+        else:
+            try:
+                cursor = conn.cursor()
+            except MySQLdb.Error, e:
+                print "Error %d: %s" % (e.args[0], e.args[1])
+                return 1
+            else:
+                try:    
+                    self.sms_count += 1
+                    query = """UPDATE bot_static_info SET sms_count = %d WHERE uid = %d""" % (self.sms_count, self.uid)
+                    cursor.execute(query)
+                except MySQLdb.Error, e:
+                    print "Error %d: %s" % (e.args[0], e.args[1])
+                    return 1
+                finally:
+                    cursor.close()
+            finally:
+                conn.close()
+
+        return 0

@@ -27,14 +27,16 @@ from filter import PlacesFilter
 class Bot:
     """The main class"""
 
-    def __init__(self):
+    def __init__(self, remote_addr = ''):
 #        self.active = False
         self.terminated = False
+        self.remote_addr = remote_addr
 
     def start(self, data_dict):
 
         data = trackingData.TrackingData()
         data.loadFromDict(data_dict)
+        data.ip_addr = self.remote_addr
         # Проверяем на корректность номера поездов и даты
         checker = pageChecker.MZAErrorChecker()
         res = 0
@@ -96,7 +98,7 @@ class Bot:
                         "plain",
                         "Ваша заявка принята и запущена в работу. Заявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
         
-            self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data.sms)
+            self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data)
         else:
             data.updateDynamicData()
             
@@ -144,7 +146,7 @@ class Bot:
                                 "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
                                 "plain",
                                 self.makeEmailText(data, i, filter.filteredPlaces))
-                    self.sms.send("Tickets", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data.sms)
+                    self.sms.send("Tickets", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
                 prevs[i] = curr
             
             time.sleep(data.period)

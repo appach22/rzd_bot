@@ -10,7 +10,7 @@ def application(environ, start_response):
     status = '200 OK'
     
     data = environ['wsgi.input'].readlines()
-    bot = Bot()
+    bot = Bot(environ['REMOTE_ADDR'])
     response = bot.call(data[0])
     response_headers = [('Content-type', 'application/json; charset=utf-8'),
                         ('Cache-Control', 'no-cache, must-revalidate'),
