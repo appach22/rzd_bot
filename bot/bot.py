@@ -21,9 +21,10 @@ import getter
 import trackingData
 from sms import SMS
 from pageParser import MZAParser
+from pageParser import MZATrainsListParser
 from filter import PlacesFilter
 
-        
+
 class Bot:
     """The main class"""
 
@@ -211,6 +212,43 @@ class Bot:
         data.removeDynamicData()
         return ret
         
+    def getTrainsList(self, route_from, route_to, departure_date):
+        ret = {}
+        try:
+            request = urllib2.Request(url="http://www.mza.ru/?exp=1", data="""ScheduleRoute_DepDate=%s
+                                                             &ScheduleRoute_StationFrom=%s
+                                                             &ScheduleRoute_StationTo=%s
+                                                             &spr=ScheduleRoute
+                                                             &submit=Показать
+                                                             &ScheduleRoute_ArvTimeFrom=
+                                                             &ScheduleRoute_ArvTimeTo=
+                                                             &ScheduleRoute_DepTimeFrom=
+                                                             &ScheduleRoute_DepTimeTo=""" % \
+                                                             (date.fromtimestamp(departure_date).strftime("%d.%m.%Y"),
+                                                             route_from.encode('utf-8'), route_to.encode('utf-8')))
+            response = urllib2.urlopen(request)
+        except urllib2.HTTPError as err:
+            ret["code"] = 1
+            ret["HTTPError"] = str(err.code)
+            return ret
+        except urllib2.URLError as err:
+            ret["code"] = 1
+            ret["HTTPError"] = str(err.reason)
+            return ret
+        checker = pageChecker.MZAErrorChecker()
+        page = response.read()
+        res = checker.CheckPage(page)
+        if res == 1: #express-3 request error
+            ret["code"] = 1
+            ret["ExpressError"] = checker.errorText
+            return ret
+        parser = MZATrainsListParser()
+        trains = parser.GetTrainsList(page)
+        ret['code'] = 0
+        ret['trains'] = trains
+        return ret
+
+
     def call(self, request_text):
         try:
             rawreq = simplejson.loads(request_text)
@@ -234,7 +272,8 @@ class Bot:
         else:
             pass
         return json_str
-        
+
+
     def daemonize(self, target, args):
         # fork the first time (to make a non-session-leader child process)
         try:

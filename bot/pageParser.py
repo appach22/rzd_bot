@@ -83,3 +83,61 @@ class MZAParser(HTMLParser):
         self.prepare()
         self.feed(page)
         return self.err
+
+class MZATrainsListParser(HTMLParser):
+
+    def prepare(self):
+        self.inList = False
+        self.inTrain = False
+        self.column = 0
+        self.currentData = ""
+        self.currentTrain = {}
+        self.trainsList = []
+
+    def handle_starttag(self, tag, attrs):
+      if tag == "h3" :
+        self.inList = True
+        self.trainsList = []
+      if tag == "tr" and self.inList :
+        self.inTrain = True
+        self.column = 0
+        self.currentTrain = {}
+      if tag == "td" and self.inTrain :
+        if len(attrs) == 0 :
+          self.column += 1
+          self.currentData = ""
+        else :
+          self.inTrain = False
+
+    def handle_endtag(self, tag):
+        if self.inTrain and tag == "td":
+            if self.column == 1:
+                self.currentTrain['train'] = self.currentData
+            elif self.column == 2:
+                self.currentTrain['departure'] = self.currentData
+            elif self.column == 3:
+                self.currentTrain['arrival'] = self.currentData
+            elif self.column == 4:
+                self.currentTrain['onway'] = self.currentData
+            elif self.column == 6:
+                self.currentTrain['vip'] = self.currentData
+
+        if self.inTrain and tag == "tr":
+            if len(self.currentTrain):
+                self.trainsList.append(self.currentTrain)
+            self.inTrain = False
+            self.column = 0
+        if self.inList and tag == "div":
+            self.inList = False
+            self.inTrain = False
+
+    def handle_data(self, data):
+        if self.column > 0:
+            self.currentData += data
+            self.currentData += " "
+
+    def GetTrainsList(self, page):
+        self.prepare()
+        self.feed(page)
+        return self.trainsList
+
