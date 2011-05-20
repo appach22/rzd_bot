@@ -62,6 +62,7 @@ def CheckAll():
                         data.uid = row[0]
                         print "Tracking %d has expired" % data.uid
                         data.removeDynamicData()
+                        row = cursor.fetchone()
                         continue
                     pid = row[1]
                     try:
