@@ -227,7 +227,10 @@ class TrackingData:
                     self.uid = row[0]
                     self.username = row[1]
                     self.emails = row[2].split(',')
-                    self.sms = row[3].split(',')
+                    if (len(row[3])):
+                        self.sms = row[3].split(',')
+                    else:
+                        self.sms = []
                     self.creation_date = row[4]
                     self.route_from = row[5].encode("utf-8")
                     self.route_to = row[6].encode("utf-8")
@@ -243,7 +246,7 @@ class TrackingData:
                     for t in trains:
                         if not len(t) == 0:
                             self.trains.append([row[11], t])
-                    self.car_type = row[16]
+                    self.car_type = int(row[16])
                     self.ip_addr = row[17]
                     self.sms_count = row[18]
                     
