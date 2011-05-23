@@ -87,13 +87,13 @@ class Bot:
         data.pid = os.getpid()
         if not isRestart:
             if not data.saveToDB():
-                self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>',
+                self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>',
                             data.emails + ["s.stasishin@gmail.com"],
                             "Ошибка базы данных",
                             "plain",
                             "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
                 return
-            self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>',
+            self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>',
                         data.emails,
                         "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
                         "plain",
@@ -126,23 +126,31 @@ class Bot:
                     request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
                     response = urllib2.urlopen(request)
                 except urllib2.HTTPError as err:
-                    self.HTTPError = err.code
+                    #self.HTTPError = err.code
+                    time.sleep(60)
                     continue
                 except urllib2.URLError as err:
-                    self.HTTPError = err.reason
+                    #self.HTTPError = err.reason
+                    time.sleep(60)
                     continue
-                
+
+                page = response.read()
+                checker = pageChecker.MZAErrorChecker()
+                if not checker.CheckPage(page) == 0:
+                    time.sleep(60)
+                    continue
                 parser = MZAParser()
-                if parser.ParsePage(response.read()) != 0:
+                if parser.ParsePage(page) != 0:
+                    time.sleep(60)
                     continue
-                
+
                 filter = PlacesFilter()
                 curr = filter.applyFilter(parser.result, data)
                 if curr > prevs[i]:
                     # new tickets have arrived!!!
                     #print "%d ==> %d" % (prevs[i], curr)
                     self.makeEmailText(data, i, filter.filteredPlaces)
-                    self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>',
+                    self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>',
                                 data.emails,
                                 "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
                                 "plain",
@@ -153,7 +161,7 @@ class Bot:
             time.sleep(data.period)
 
         if self.terminated:
-            self.mailer.send('"Новые билеты" <robot@rzdtickets.ru>', 
+            self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>', 
                         data.emails,
                         "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
                         "plain",
@@ -191,6 +199,10 @@ class Bot:
                 if place != car[2][len(car[2]) - 1]:
                     text += ", "
         return text
+
+
+
+
 
     def stop(self, uid, email):
         data = trackingData.TrackingData()
