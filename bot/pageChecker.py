@@ -43,5 +43,5 @@ class MZAErrorChecker(HTMLParser):
 
     def CheckPage(self, page):
         self.err = 0
-        self.feed(page)
+        self.feed(page.decode('utf-8'))
         return self.err

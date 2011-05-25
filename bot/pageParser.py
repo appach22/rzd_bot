@@ -38,7 +38,6 @@ class MZAParser(HTMLParser):
       if self.h == 1 :
         self.h = 0
       if self.inHeader :
-        data = unicode(data, "UTF-8")
         if data.find(u"Сидячий") != -1:
           self.inType = True
           self.carType = 1
@@ -52,14 +51,12 @@ class MZAParser(HTMLParser):
           self.inType = True
           self.carType = 4
       if self.inPlaces :
-        data = unicode(data, "UTF-8")
         pos = data.find(u"Свободные места: ")
         if pos != -1 :
           places = [self.parsePlace(s) for s in data[pos+17:].split(", ")]
           self.result.append([self.car, self.carType, places])
           self.count += len(places)
       if self.inCar :
-        data = unicode(data, "UTF-8")
         pos = data.find(u"вагон №: ")
         if pos != -1 :
           self.car = int(data[pos+9:pos+11])
@@ -81,7 +78,7 @@ class MZAParser(HTMLParser):
 
     def ParsePage(self, page):
         self.prepare()
-        self.feed(page)
+        self.feed(page.decode('utf-8'))
         return self.err
 
 class MZATrainsListParser(HTMLParser):
@@ -138,6 +135,6 @@ class MZATrainsListParser(HTMLParser):
 
     def GetTrainsList(self, page):
         self.prepare()
-        self.feed(page)
+        self.feed(page.decode('utf-8'))
         return self.trainsList
 
