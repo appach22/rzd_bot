@@ -227,8 +227,8 @@ class TrackingData:
                     self.uid = row[0]
                     self.username = row[1]
                     self.emails = row[2].split(',')
-                    if (len(row[3])):
-                        self.sms = row[3].split(',')
+                    if len(row[3]):
+                        self.sms = row[3].encode('utf-8').split(',')
                     else:
                         self.sms = []
                     self.creation_date = row[4]
