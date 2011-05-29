@@ -87,13 +87,13 @@ class Bot:
         data.pid = os.getpid()
         if not isRestart:
             if not data.saveToDB():
-                self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>',
+                self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                             data.emails + ["s.stasishin@gmail.com"],
                             "Ошибка базы данных",
                             "plain",
                             "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
                 return
-            self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>',
+            self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                         data.emails,
                         "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
                         "plain",
@@ -150,7 +150,7 @@ class Bot:
                     # new tickets have arrived!!!
                     #print "%d ==> %d" % (prevs[i], curr)
                     self.makeEmailText(data, i, filter.filteredPlaces)
-                    self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>',
+                    self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                                 data.emails,
                                 "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
                                 "plain",
@@ -161,7 +161,7 @@ class Bot:
             time.sleep(data.period)
 
         if self.terminated:
-            self.mailer.send('Новые билеты', '<robot@rzdtickets.ru>', 
+            self.mailer.send('vpoezde.com', '<robot@vpoezde.com>', 
                         data.emails,
                         "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
                         "plain",
