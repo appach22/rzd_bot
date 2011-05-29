@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Cache-Control" content="No-cache" />
+        <meta http-equiv="Pragma" content="No-cache" />
+        <meta http-equiv="Expires" content="-1" />
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+        <title>Отслеживание ж/д билетов</title>
+        <link rel="shortcut icon" type="image/x-icon" href="static/img/favicon.ico" />
+        <link rel="stylesheet" type="text/css" media="screen" href="static/themes/redmond/jquery-ui-1.8.13.custom.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="static/themes/jquery.alerts.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="static/themes/jquery.cluetip.css" />
+        <link rel="stylesheet" type="text/css" media="screen" href="static/css/main.css?101" />
+        <script type="text/javascript" src="static/js/jquery/jquery-1.6.1.min.js"></script>
+        <script type="text/javascript" src="static/js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
+        <script type="text/javascript" src="static/js/jquery/i18n/jquery-ui-i18n.js"></script>
+        <script type="text/javascript" src="static/js/jquery/jquery.jsonrpc.js"></script>
+        <script type="text/javascript" src="static/js/jquery/jquery.alerts.js"></script>
+        <script type="text/javascript" src="static/js/jquery/jquery.cluetip.js"></script>
+        <script type="text/javascript" src="static/js/jcommon.js?101"></script>
+        <script type="text/javascript" src="static/js/jsetup.js?101"></script>
+        <script type="text/javascript" src="static/js/jbind.js?101"></script>
+    </head>
+    <body>
+        <div style="min-width: 700px;">
+            <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td height="5"></td>
+                </tr>
+                <tr>
+                    <td align="center"><a href="/"><img src="static/img/logo.png" border="0" alt="" /></a></td>
+                </tr>
+                <tr>
+                    <td height="7"></td>
+                </tr>
+                <tr>
+                    <td align="center" class="header">Отслеживание железнодорожных билетов</td>
+                </tr>
+                <tr>
+                    <td height="5"></td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <div id="topFAQ">
+                            <h3><a href="#">Как это работает?</a></h3>
+                            <div align="left">
+                                1. Вы оставляете заявку на отслеживание билетов на конкретные поезда в конкретные даты, указав, откуда и куда вам надо ехать.<br />
+                                2. Система автоматически отслеживает наличие мест на запрошенные поезда.<br />
+                                3. В случае появления мест, в течение 5 мин. вам будет отправлено электронное письмо (и СМС) с полной информацией об этих местах (маршрут поездки, дата, номер поезда, номера вагонов и мест).<br />
+                                4. Получив такое уведомление вы можете сами зайти на сайт РЖД и благополучно забронировать освободившиеся места.<br />
+                                5. Если появившиеся места вас по каким-либо критериям не устраивают, просто ждите, когда освободятся другие места (система продолжает отслеживание до тех пор, пока вы не отмените заявку).
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="10"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td width="20" align="left"></td>
+                                <td width="45" align="left"></td>
+                                <td>
+                                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="700">
+                                        <tr>
+                                            <td class="table-block-title">Маршрут</td>
+                                            <td class="table-block-help"><img class="settings-helper" src="static/img/question.png" title='Маршрут поездки|Введите станцию отправления и станцию назначения. Для каждого отслеживания можно ввести только одну станцию отправления и одну станцию назначения.'></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-name">Станция отправления:</td>
+                                            <td class="table-block-param"><input type="text" id="sourceField" class="long-field" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-name">Станция назначения:</td>
+                                            <td class="table-block-param"><input type="text" id="destinationField" class="long-field" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-title">Даты отправления</td>
+                                            <td class="table-block-help"><img class="settings-helper" src="static/img/question.png" title='Даты отслеживания и номера поездов|Выберите даты, в которые вы хотели бы отследить наличие мест по заданному маршруту. Вы можете указать до 3-х дат, идущих подряд. Далее укажите для каждой даты номера поездов, для которых необходимо выполнять отслеживание. Для каждой даты вы можете указать до 3-х номеров поездов.'></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr id="d1">
+                                            <td class="table-block-left-param" valign="top">
+                                                <table align="right" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>Дата: <input type="text" class="dateField d1f short-field" readonly /></td></td>
+                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="datePlus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td class="table-block-param" valign="top">
+                                                <table align="left" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>№ поезда: <input type="text" class="d1t1f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="trainPlus" /></td>
+                                                    </tr>
+                                                    <tr class="d1t2 disabledField"><td height="5"></td><td></td></tr>
+                                                    <tr class="d1t2 disabledField" id="d1t2">
+                                                        <td>№ поезда: <input type="text" class="d1t2f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                    </tr>
+                                                    <tr class="d1t3 disabledField"><td height="5"></td><td></td></tr>
+                                                    <tr class="d1t3 disabledField" id="d1t3">
+                                                        <td>№ поезда: <input type="text" class="d1t3f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr class="d2 disabledField">
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr id="d2" class="d2 disabledField">
+                                            <td class="table-block-left-param" valign="top">
+                                                <table align="right" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>Дата: <input type="text" class="dateField d2f short-field" readonly /></td></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="dateMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td class="table-block-param" valign="top">
+                                                <table align="left" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>№ поезда: <input type="text" class="d2t1f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="trainPlus" /></td>
+                                                    </tr>
+                                                    <tr class="d2t2 disabledField"><td height="5"></td><td></td></tr>
+                                                    <tr class="d2t2 disabledField" id="d2t2">
+                                                        <td>№ поезда: <input type="text" class="d2t2f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                    </tr>
+                                                    <tr class="d2t3 disabledField"><td height="5"></td><td></td></tr>
+                                                    <tr class="d2t3 disabledField" id="d2t3">
+                                                        <td>№ поезда: <input type="text" class="d2t3f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr class="d3 disabledField">
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr id="d3" class="d3 disabledField">
+                                            <td class="table-block-left-param" valign="top">
+                                                <table align="right" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>Дата: <input type="text" class="dateField d3f short-field" readonly /></td></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="dateMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td class="table-block-param" valign="top">
+                                                <table align="left" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>№ поезда: <input type="text" class="d3t1f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="trainPlus" /></td>
+                                                    </tr>
+                                                    <tr class="d3t2 disabledField"><td height="5"></td><td></td></tr>
+                                                    <tr class="d3t2 disabledField" id="d3t2">
+                                                        <td>№ поезда: <input type="text" class="d3t2f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                    </tr>
+                                                    <tr class="d3t3 disabledField"><td height="5"></td><td></td></tr>
+                                                    <tr class="d3t3 disabledField" id="d3t3">
+                                                        <td>№ поезда: <input type="text" class="d3t3f trainField short-field" readonly /></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-title">Требования к местам</td>
+                                            <td class="table-block-help"><img class="settings-helper" src="static/img/question.png" title='Требования к местам|Укажите тип вагона, для которого выполнять отслеживание. Свободные места в других типах вагонов будут ингорироваться.'></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-name">Тип вагона:</td>
+                                            <td class="table-block-param">
+                                                <select id="wagonField" class="long-field">
+                                                    <option value="0">Любой</option>
+                                                    <option value="1">Сидячий</option>
+                                                    <option value="2">Плацкартный</option>
+                                                    <option value="3">Купейный</option>
+                                                    <option value="4">Вагон СВ</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-title">Контакты</td>
+                                            <td class="table-block-help"><img class="settings-helper" src="static/img/question.png" title='Контакты для оповещения|Введите адреса электронной почты, на которые присылать уведомления о свободных местах. Вы можете также ввести номер мобильного телефона, на который присылать SMS с информацией о свободных местах. Отправка SMS работает для номеров России и Украины. Формат номера: 11 знаков для российских номеров (79051112233), 12 знаков для украинских (380441112233).'></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr id="e1">
+                                            <td class="table-block-name">e-mail:</td>
+                                            <td class="table-block-param">
+                                                <table align="left" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td><input type="text" class="emailField e1f long-field" /></td></td>
+                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="emailPlus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr id="e2" class="e2 disabledField">
+                                            <td class="table-block-name">e-mail:</td>
+                                            <td class="table-block-param">
+                                                <table align="left" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td><input type="text" class="emailField e2f long-field" /></td></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="emailMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr id="e3" class="e3 disabledField">
+                                            <td class="table-block-name">e-mail:</td>
+                                            <td class="table-block-param">
+                                                <table align="left" border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td><input type="text" class="emailField e3f long-field" /></td></td>
+                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="emailMinus" /></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-name">Номер телефона:</td>
+                                            <td class="table-block-param"><input type="text" class="cellField long-field" maxlength="12" /></td>
+                                        </tr>
+                                        <!--<tr>
+                                            <td class="table-block-name">Код подтверждения:</td>
+                                            <td class="table-block-param"><input type="text" id="passwdField" class="long-field" /></td>
+                                        </tr>-->
+                                    </table>
+                                </td>
+                                <td width="45" align="left"></td>
+                                <td width="20" align="left"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="40"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <table align="center" border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td align="center"><button type="submit" id="submitStart">Начать отслеживание</button></td>
+                                <td align="center" width="10"></td>
+                                <td align="center"><button type="submit" id="submitStop">Остановить отслеживание</button></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="20"></td>
+                </tr>
+                <tr>
+                    <td align="center"><font size="2">&copy; 2011 <a href="http://vpoezde.com">vpoezde.com</a></font></td>
+                </tr>
+            </table>
+        </div>
+        <div id="stopDialog" title="Отмена заявки" style="display: none;">
+            <table border="0" cellpadding="0" cellspacing="0" align="center">
+                <tr><td>Номер заявки:</td><td width="15"></td><td><input type="text" id="stopRequest" maxlength="10" /></td></tr>
+                <tr><td height="10"></td><td width="15"></td><td></td></tr>
+                <tr><td>e-mail:</td><td width="15"></td><td><input type="text" id="stopEmail" /></td></tr>
+            </table>
+        </div>
+        <div id="trainsDialog" title="Список поездов" style="display: none;">
+            <table border="0" cellpadding="0" cellspacing="0" align="center" id="trainsDialogTbl"></table>
+        </div>
+        <div id="loadingDialog" title="Загрузка" style="display: none;">
+            <table border="0" cellpadding="0" cellspacing="0" align="center">
+                <tr><td align="center">проверка запроса...</td></tr>
+                <tr><td height="10"></td></tr>
+                <tr><td align="center"><img src="static/img/loader.gif" border="0" alt="" /></td></tr>
+            </table>
+        </div>
+    </body>
+</html>

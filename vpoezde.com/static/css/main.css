@@ -1,0 +1,185 @@
+* {
+    font-family: Verdana, Tahoma;
+    font-size: 12px;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #ffffff;
+    color: #000000;
+    font-family: Verdana, Tahoma;
+    font-size: 12px;
+}
+
+a {
+    color: #0080c0;
+    text-decoration: none;
+}
+
+a img, iframe {
+    border: none;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+select {
+    width: 14em;
+}
+
+#submitStart {
+    font-size: 18px;
+    color: #608264;
+}
+
+#submitStop {
+    font-size: 18px;
+    color: #977e71;
+}
+
+#topFAQ {
+    width: 900px;
+}
+
+.table-block-title {
+    color: black;
+    border-bottom: 1px solid #cbcbcb;
+    font-weight: bold;
+    text-align: left;
+    height: 10px;
+}
+
+.table-block-help {
+    color: black;
+    border-bottom: 1px solid #cbcbcb;
+    font-weight: bold;
+    text-align: right;
+}
+
+.table-spacer {
+    height: 1em;
+}
+
+.table-block-name {
+    text-align: right;
+    width: 50%;
+}
+
+.table-block-param {
+    text-align: left;
+    width: 50%;
+    padding: 3px;
+    padding-left: 15px;
+}
+
+.table-block-left-param {
+    text-align: right;
+    width: 50%;
+    padding: 3px;
+}
+
+.long-field {
+    width: 200px;
+}
+
+.short-field {
+    width: 100px;
+}
+
+.plus-minus {
+    padding: 2px;
+}
+
+.datePlus, .trainPlus, .dateMinus, .trainMinus, .emailPlus, .emailMinus {
+    cursor: pointer;
+}
+
+.disabledField {
+    display: none;
+}
+
+.fieldError {
+    /* border: solid 1px red; */
+    color: red;
+}
+
+.noTitleStuff .ui-dialog-titlebar {
+    display: none;
+}
+
+/***************************************
+   =cluetipClass: 'def'
+-------------------------------------- */
+.cluetip-def {
+    background-color: transparent;
+}
+
+.cluetip-def #cluetip-outer {
+    border: 2px solid #ccc;
+    position: relative;
+    background-color: #fff;
+}
+
+.cluetip-def h3#cluetip-title {
+    margin: 0 0 5px;
+    padding: 2px 5px;
+    font-size: 16px;
+    font-weight: normal;
+    /*background-color: #ccc111;*/
+    color: #ffffff;
+    background-image: url("../img/cluetip_title.jpg");
+    background-repeat: repeat-x;
+}
+
+.cluetip-def #cluetip-inner {
+    padding: 0 5px 5px;
+    display: inline-block;
+}
+
+.cluetip-def div#cluetip-close {
+    text-align: right;
+    margin: 0 5px 5px;
+    color: #900;
+}
+
+/* def arrows */
+
+.clue-right-def .cluetip-arrows {
+    background-image: url(../themes/images/arrowleft.gif);
+}
+
+.clue-left-def .cluetip-arrows {
+    background-image: url(../themes/images/arrowright.gif);
+    left: 100%;
+    margin-right: -11px;
+}
+
+.clue-top-def .cluetip-arrows {
+    background-image: url(../themes/images/arrowdown.gif);
+    top: 100%;
+    left: 50%;
+    margin-left: -11px;
+    height: 11px;
+    width: 22px;
+}
+
+.clue-bottom-def .cluetip-arrows {
+    background-image: url(../themes/images/arrowup.gif);
+    top: -11px;
+    left: 50%;
+    margin-left: -11px;
+    height: 11px;
+    width: 22px;
+}
+
+.header {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2e6e9e;
+}
