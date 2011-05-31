@@ -33,7 +33,8 @@ class Bot:
         self.terminated = False
         self.remote_addr = remote_addr
         self.output_dir = output_dir
-
+        self.emergencyAddress = 's.stasishin@gmail.com'
+        
     def start(self, data_dict):
 
         data = trackingData.TrackingData()
@@ -41,48 +42,44 @@ class Bot:
         data.ip_addr = self.remote_addr
         # Проверяем на корректность номера поездов и даты
         checker = pageChecker.MZAErrorChecker()
-        res = 0
+        res = 255
         ret = {}
         for i in range(len(data.trains)):
             self.itemIndex = i
-            try:
-                request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
-                response = urllib2.urlopen(request)
-            except urllib2.HTTPError as err:
-                ret["code"] = 3
-                ret["HTTPError"] = str(err.code)
-                return ret
-            except urllib2.URLError as err:
-                ret["code"] = 3
-                ret["HTTPError"] = str(err.reason)
-                return ret
-            res = checker.CheckPage(response.read())
-            if res == 1: #express-3 request error
-                ret["code"] = 1
-                ret["TrainIndex"] = i
-                ret["ExpressError"] = checker.errorText
-                return ret
-            elif res == 2: #train number is ambiguous
-                ret["code"] = 2
-                ret["TrainIndex"] = i
-                ret["TrainOptions"] = checker.options
-                return ret
-            elif res == 255: #page is empty
-                ret["code"] = 2
-                ret["TrainIndex"] = i
-                ret["TrainOptions"] = checker.options
-                return ret
-        
+            while res == 255:
+                try:
+                    request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
+                    response = urllib2.urlopen(request)
+                except urllib2.HTTPError as err:
+                    ret["code"] = 3
+                    ret["HTTPError"] = str(err.code)
+                    return ret
+                except urllib2.URLError as err:
+                    ret["code"] = 3
+                    ret["HTTPError"] = str(err.reason)
+                    return ret
+                res = checker.CheckPage(response.read())
+                if res == 1: #express-3 request error
+                    ret["code"] = 1
+                    ret["TrainIndex"] = i
+                    ret["ExpressError"] = checker.errorText
+                    return ret
+                elif res == 2: #train number is ambiguous
+                    ret["code"] = 2
+                    ret["TrainIndex"] = i
+                    ret["TrainOptions"] = checker.options
+                    return ret
+
         #return on error
-        if res != 0:    
+        if res != 0:
             ret["code"] = res
             return ret
 
         try:
             self.daemonize(target = self.newTracking, args = (data, False))
         except:
-            ret["code"] = 255
-            return ret
+            self.emergencyMail("Daemonize exception", "Daemonize exception occured")
+            os.exit(1)
             
         ret["code"] = 0
         return ret
@@ -297,6 +294,10 @@ class Bot:
 
 
     def daemonize(self, target, args):
+        # detect libc location
+        libc_path = '/lib/libc.so.6'
+        if os.path.exists('/lib/i386-linux-gnu'):
+            libc_path = '/lib/i386-linux-gnu/libc.so.6'
         # fork the first time (to make a non-session-leader child process)
         try:
             pid = os.fork()
@@ -305,7 +306,7 @@ class Bot:
         if pid == 0:
             # detach from controlling terminal (to make child a session-leader)
             os.setsid()
-            libc = dl.open('/lib/libc.so.6')
+            libc = dl.open(libc_path)
             libc.call('prctl', 15, 'bot', 0, 0, 0)
             try:
                 pid = os.fork()
@@ -339,9 +340,13 @@ class Bot:
         os.dup2(0, 1)
         os.dup2(0, 2)
 
-        libc = dl.open('/lib/libc.so.6')
+        libc = dl.open(libc_path)
         libc.call('prctl', 15, 'bot', 0, 0, 0)
-        
+
         target(*args)
         os.exit(0)
 
+    def emergencyMail(self, subject, text):
+        mailer = Mailer()
+        mailer.send('vpoezde.com', '<robot@vpoezde.com>', [self.emergencyAddress], subject, "plain", text)
+        return
