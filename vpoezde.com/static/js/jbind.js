@@ -142,11 +142,13 @@ $("#trainsDialog").dialog({
                         for(i in res["trains"])
                         {
                             var train = res["trains"][i];
-                            var route = trim((train["train"])).split(" ");
+                            var tr = trim((train["train"]))
+                            var num = tr.split(" ");
+                            var route = trim(tr.slice(tr.indexOf(" ")))
                             ret_html += '<tr>' +
-                                        '<td><input type="radio" name="trainListEl" class="trainListEl" value="' + route[0] + '"></td><td></td>' +
-                                        '<td align="center">' + route[0] + '</td><td></td>' +
-                                        '<td>' + route[1] + '</td><td></td>' +
+                                        '<td><input type="radio" name="trainListEl" class="trainListEl" value="' + num[0] + '"></td><td></td>' +
+                                        '<td align="center">' + num[0] + '</td><td></td>' +
+                                        '<td>' + route + '</td><td></td>' +
                                         '<td align="center">' + train["departure"] + '</td><td></td>' +
                                         '<td>' + train["arrival"] + '</td><td></td>' +
                                         '<td align="center">' + train["onway"] + '</td><td></td>' +

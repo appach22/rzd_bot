@@ -28,10 +28,11 @@ from filter import PlacesFilter
 class Bot:
     """The main class"""
 
-    def __init__(self, remote_addr = ''):
+    def __init__(self, remote_addr = '', output_dir = '/var/log/bot'):
 #        self.active = False
         self.terminated = False
         self.remote_addr = remote_addr
+        self.output_dir = output_dir
 
     def start(self, data_dict):
 
@@ -66,6 +67,11 @@ class Bot:
                 ret["TrainIndex"] = i
                 ret["TrainOptions"] = checker.options
                 return ret
+            elif res == 255: #page is empty
+                ret["code"] = 2
+                ret["TrainIndex"] = i
+                ret["TrainOptions"] = checker.options
+                return ret
         
         #return on error
         if res != 0:    
@@ -95,11 +101,11 @@ class Bot:
                 return
             self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                         data.emails,
-                        "Ваша заявка принята (%s - %s)" % (data.route_from, data.route_to),
+                        "Ваша заявка %d принята (%s - %s)" % (data.uid, data.route_from, data.route_to),
                         "plain",
                         "Ваша заявка принята и запущена в работу. Заявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
         
-            self.sms.send("Tickets", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data)
+            self.sms.send("vpoezde.com", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data)
         else:
             data.updateDynamicData()
             
@@ -146,16 +152,20 @@ class Bot:
 
                 filter = PlacesFilter()
                 curr = filter.applyFilter(parser.result, data)
+                if curr == 0 and curr < prevs[i]:
+                    fd = open("%s/page.%d.html" % (self.output_dir, os.getpid()), "w")
+                    fd.write(page)
+                    fd.close()
                 if curr > prevs[i]:
                     # new tickets have arrived!!!
                     #print "%d ==> %d" % (prevs[i], curr)
                     self.makeEmailText(data, i, filter.filteredPlaces)
                     self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                                 data.emails,
-                                "Билеты (+%d новых) [%s - %s]" % (curr - prevs[i], data.route_from, data.route_to),
+                                "Билеты (+%d новых) [Заявка %d: %s - %s]" % (curr - prevs[i], data.uid, data.route_from, data.route_to),
                                 "plain",
                                 self.makeEmailText(data, i, filter.filteredPlaces))
-                    self.sms.send("Tickets", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
+                    self.sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
                 prevs[i] = curr
             
             time.sleep(data.period)
@@ -251,7 +261,7 @@ class Bot:
         page = response.read()
         res = checker.CheckPage(page)
         if res == 1: #express-3 request error
-            ret["code"] = 1
+            ret["code"] = 2
             ret["ExpressError"] = checker.errorText
             return ret
         parser = MZATrainsListParser()
@@ -325,7 +335,7 @@ class Bot:
                pass
 
         # redirect stdin, stdout and stderr to /dev/null
-        os.open("/usr/local/bot/outputs/bot.%d.out" % os.getpid(), os.O_RDWR + os.O_CREAT, 0644) # standard input (0)
+        os.open("%s/bot.%d.out" % (self.output_dir, os.getpid()), os.O_RDWR + os.O_CREAT, 0644) # standard input (0)
         os.dup2(0, 1)
         os.dup2(0, 2)
 

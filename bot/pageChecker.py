@@ -4,14 +4,16 @@ from HTMLParser import HTMLParser
 
 class MZAErrorChecker(HTMLParser):
 
-    err = 0
+    err = 255
     errorText = ""
     inError = False
     inSelect = False
     inOption = False
     options = []
-    
+
     def handle_starttag(self, tag, attrs):
+        if self.err == 255:
+            self.err = 0
         if tag == "div" and len(attrs) > 0 and attrs[0][1] == "error":
             self.inError = True
         if tag == "select":
@@ -42,6 +44,6 @@ class MZAErrorChecker(HTMLParser):
             self.options[len(self.options) - 1].append(data)
 
     def CheckPage(self, page):
-        self.err = 0
+        self.err = 255
         self.feed(page.decode('utf-8'))
         return self.err

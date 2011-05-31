@@ -6,6 +6,7 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 
 $r_host = "rzdtickets\.ru";
 $r_host2 = "vpoezde\.com";
+$r_host3 = "test\.vpoezde\.com";
 // $r_host = "gpio\.ru";
 // $r_host2 = "localhost";
 
@@ -18,7 +19,8 @@ $response = Array();
 $pair = Array();
 
 if(!empty($_GET["term"]) && (preg_match("/^http\:\/\/(www\.)?".$r_host."/i", strtolower(@$_SERVER["HTTP_REFERER"]))
-                         || preg_match("/^http\:\/\/(www\.)?".$r_host2."/i", strtolower(@$_SERVER["HTTP_REFERER"]))))
+                         || preg_match("/^http\:\/\/(www\.)?".$r_host2."/i", strtolower(@$_SERVER["HTTP_REFERER"]))
+                         || preg_match("/^http\:\/\/(www\.)?".$r_host3."/i", strtolower(@$_SERVER["HTTP_REFERER"]))))
 {
 
     mysql_connect($sql_host, $sql_user, $sql_pass) or die(mysql_error());
