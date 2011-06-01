@@ -24,7 +24,7 @@ def RestartTracking(uid):
             del data.trains[0]
         bot = Bot()
         bot.daemonize(target=bot.newTracking, args=(data, True))
-        time.sleep(3)
+        time.sleep(10)
     else:
         print "Error loading tracking %d from the main table" % uid
 
