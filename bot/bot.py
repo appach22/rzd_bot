@@ -78,14 +78,14 @@ class Bot:
 
         try:
             self.daemonize(target = self.newTracking, args = (data, False))
-        except Exception as inst:
-            self.emergencyMail("Daemonize exception", "Daemonize exception occured:\n %s\n %s\n %s\n" % (str(type(inst)), str(inst.args), str(traceback.extract_stack())))
-            traceback.extract_stack()
-            os.exit(1)
-            
+        except:
+            self.emergencyMail("Daemonize exception", "Daemonize exception occured:\n %s\n" % (str(traceback.format_exc())))
+            os._exit(1)
+
         ret["code"] = 0
         return ret
-        
+
+
     def newTracking(self, data, isRestart):
         self.mailer = Mailer()
         self.sms = SMS()
@@ -175,7 +175,6 @@ class Bot:
                         "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
                         "plain",
                         "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
-        os.exit(0)
 
     def makeEmailText(self, data, train_index, places):
         text = data.trains[train_index][0].strftime("%d.%m.%Y")
@@ -210,9 +209,6 @@ class Bot:
         return text
 
 
-
-
-
     def stop(self, uid, email):
         data = trackingData.TrackingData()
         ret = {}
@@ -232,7 +228,8 @@ class Bot:
             return ret
         data.removeDynamicData()
         return ret
-        
+
+
     def getTrainsList(self, route_from, route_to, departure_date):
         ret = {}
         try:
@@ -358,8 +355,7 @@ class Bot:
         libc.call('prctl', 15, 'bot', 0, 0, 0)
 
         target(*args)
-        return 1
-        os.exit(0)
+        os._exit(0)
 
     def emergencyMail(self, subject, text):
         mailer = Mailer()
