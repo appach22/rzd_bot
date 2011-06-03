@@ -17,6 +17,8 @@ class TrackingData:
     def __init__(self):
         self.route_from = ""
         self.route_to = ""
+        self.id_from = 0
+        self.id_to = 0
         self.trains = []
         self.car_type = 0
         self.emails = []
@@ -30,20 +32,54 @@ class TrackingData:
         self.sms_count = 0
         self.creation_date = date.fromtimestamp(0)
         
+    def getStationId(self, station):
+        try:
+            conn = MySQLdb.connect(host = host,
+                                   user = user,
+                                   passwd = passw,
+                                   db = database,
+                                   charset = "utf8", 
+                                   use_unicode = True)
+            cursor = conn.cursor()
+            query = "SELECT station_code FROM `stations_t4you.ru` WHERE `station_name` LIKE '%s'" % station
+            cursor.execute(query)
+            row = cursor.fetchone()
+            if row == None:
+                return 0
+            return row[0]
+        except:
+            return 0
+        
     def getPostAsDict(self, index):
         train = self.trains[index]
+        if not self.id_from == 0:
+            sfrom = str(self.id_from)
+        else:
+            sfrom = self.route_from
+        if not self.id_to == 0:
+            sto = str(self.id_to)
+        else:
+            sto = self.route_to
         return {"TrainPlaces_DepDate" : train[0].strftime("%d.%m.%Y"),
-                "TrainPlaces_StationFrom" : self.route_from,
-                "TrainPlaces_StationTo" : self.route_to,
+                "TrainPlaces_StationFrom" : sfrom,
+                "TrainPlaces_StationTo" : sto,
                 "TrainPlaces_TrainN" : train[1],
                 "spr" : "TrainPlaces", 
                 "submit_TrainPlaces" : "Показать"}
 
     def getPostAsString(self, index):
         train = self.trains[index]
+        if not self.id_from == 0:
+            sfrom = str(self.id_from)
+        else:
+            sfrom = self.route_from
+        if not self.id_to == 0:
+            sto = str(self.id_to)
+        else:
+            sto = self.route_to
         return  "TrainPlaces_DepDate=" + train[0].strftime("%d.%m.%Y") + \
-                "&TrainPlaces_StationFrom=" + self.route_from + \
-                "&TrainPlaces_StationTo=" + self.route_to + \
+                "&TrainPlaces_StationFrom=" + sfrom + \
+                "&TrainPlaces_StationTo=" + sto + \
                 "&TrainPlaces_TrainN=" + train[1] + \
                 "&spr=TrainPlaces" + \
                 "&submit_TrainPlaces=Показать"
@@ -75,6 +111,8 @@ class TrackingData:
         try:
             self.route_from = dict["route_from"].encode("utf-8")
             self.route_to = dict["route_to"].encode("utf-8")
+            self.id_from = self.getStationId(self.route_from)
+            self.id_to = self.getStationId(self.route_to)
             raw_trains = dict["trains"]
             temp_trains = []
             for i in range(len(raw_trains)):
@@ -234,6 +272,8 @@ class TrackingData:
                     self.creation_date = row[4]
                     self.route_from = row[5].encode("utf-8")
                     self.route_to = row[6].encode("utf-8")
+                    self.id_from = self.getStationId(self.route_from)
+                    self.id_to = self.getStationId(self.route_to)
                     trains = row[8].encode("utf-8").split(',')
                     for t in trains:
                         if not len(t) == 0:

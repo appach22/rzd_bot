@@ -6,9 +6,8 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 
 $r_host = "rzdtickets\.ru";
 $r_host2 = "vpoezde\.com";
-$r_host3 = "test\.vpoezde\.com";
+$r_host3 = "localhost";
 // $r_host = "gpio\.ru";
-// $r_host2 = "localhost";
 
 $sql_host = "localhost";
 $sql_user = "rzdbot";

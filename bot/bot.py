@@ -13,6 +13,7 @@ import sys
 #import daemon
 import simplejson
 from syslog import syslog
+import traceback
 
 
 import pageChecker
@@ -77,8 +78,9 @@ class Bot:
 
         try:
             self.daemonize(target = self.newTracking, args = (data, False))
-        except:
-            self.emergencyMail("Daemonize exception", "Daemonize exception occured")
+        except Exception as inst:
+            self.emergencyMail("Daemonize exception", "Daemonize exception occured:\n %s\n %s\n %s\n" % (str(type(inst)), str(inst.args), str(traceback.extract_stack())))
+            traceback.extract_stack()
             os.exit(1)
             
         ret["code"] = 0
@@ -234,6 +236,18 @@ class Bot:
     def getTrainsList(self, route_from, route_to, departure_date):
         ret = {}
         try:
+            data = trackingData.TrackingData()
+            id = data.getStationId(route_from.encode('utf-8'))
+            if not id == 0:
+                sfrom = str(id)
+            else:
+                sfrom = route_from.encode('utf-8')
+            id = data.getStationId(route_to.encode('utf-8'))
+            if not id == 0:
+                sto = str(id)
+            else:
+                sto = route_to.encode('utf-8')
+
             request = urllib2.Request(url="http://www.mza.ru/?exp=1", data="""ScheduleRoute_DepDate=%s
                                                              &ScheduleRoute_StationFrom=%s
                                                              &ScheduleRoute_StationTo=%s
@@ -244,7 +258,7 @@ class Bot:
                                                              &ScheduleRoute_DepTimeFrom=
                                                              &ScheduleRoute_DepTimeTo=""" % \
                                                              (date.fromtimestamp(departure_date).strftime("%d.%m.%Y"),
-                                                             route_from.encode('utf-8'), route_to.encode('utf-8')))
+                                                             sfrom, sto))
             response = urllib2.urlopen(request)
         except urllib2.HTTPError as err:
             ret["code"] = 1
@@ -321,7 +335,7 @@ class Bot:
                 os._exit(0)
         else:
             # parent (calling) process is all done
-            return
+            return 0
         # grandchild process now non-session-leader, detached from parent
         # grandchild process must now close all open files
         try:
@@ -344,6 +358,7 @@ class Bot:
         libc.call('prctl', 15, 'bot', 0, 0, 0)
 
         target(*args)
+        return 1
         os.exit(0)
 
     def emergencyMail(self, subject, text):
