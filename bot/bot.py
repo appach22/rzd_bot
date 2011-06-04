@@ -52,23 +52,28 @@ class Bot:
                     request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(i))
                     response = urllib2.urlopen(request)
                 except urllib2.HTTPError as err:
-                    ret["code"] = 3
+                    ret["code"] = 1
                     ret["HTTPError"] = str(err.code)
                     return ret
                 except urllib2.URLError as err:
-                    ret["code"] = 3
+                    ret["code"] = 1
                     ret["HTTPError"] = str(err.reason)
                     return ret
                 res = checker.CheckPage(response.read())
                 if res == 1: #express-3 request error
-                    ret["code"] = 1
+                    ret["code"] = 2
                     ret["TrainIndex"] = i
                     ret["ExpressError"] = checker.errorText
                     return ret
-                elif res == 2: #train number is ambiguous
-                    ret["code"] = 2
-                    ret["TrainIndex"] = i
-                    ret["TrainOptions"] = checker.options
+                elif res == 2: #station number is ambiguous
+                    ret["code"] = 3
+                    ret["StationNum"] = checker.stationNum
+                    ret["StationOptions"] = checker.options
+                    return ret
+                elif res == 3: #station name is incorrect
+                    ret["code"] = 4
+                    ret["Station"] = checker.station
+                    ret["StationError"] = checker.errorText
                     return ret
 
         #return on error
@@ -271,6 +276,16 @@ class Bot:
         if res == 1: #express-3 request error
             ret["code"] = 2
             ret["ExpressError"] = checker.errorText
+            return ret
+        elif res == 2: #station name is ambiguous
+            ret["code"] = 3
+            ret["StationNum"] = checker.stationNum
+            ret["StationOptions"] = checker.options
+            return ret
+        elif res == 3: #station name is incorrect
+            ret["code"] = 4
+            ret["Station"] = checker.station
+            ret["StationError"] = checker.errorText
             return ret
         parser = MZATrainsListParser()
         trains = parser.GetTrainsList(page)

@@ -95,6 +95,7 @@ $("#stopDialog").dialog({
                 },
                 error: function(result) {
                     $("#loadingDialog").dialog("close");
+                    // TODO: Возвращать текст ошибки
                     jAlert("error", "Ошибка при отправке запроса!", "Ошибка");
                 }
             });
@@ -139,6 +140,12 @@ $("#trainsDialog").dialog({
                 switch(res["code"])
                 {
                     case 0:
+                        if (res["trains"].length() == 0)
+                        {
+                            $("#trainsDialog").dialog("close");
+                            jAlert("error", "Поезда в указанную дату не найдены!", "Ошибка");
+                            break;
+                        }
                         for(i in res["trains"])
                         {
                             var train = res["trains"][i];
@@ -157,8 +164,21 @@ $("#trainsDialog").dialog({
                         }
                         break;
                     case 1:
-                        trainFocused.val("");
-                        ret_html = '<tr><td height="90"></td></tr><tr><td align="center">' + res["ExpressError"] + '</td></tr>';
+                        $("#trainsDialog").dialog("close");
+                        jAlert("error", "Ошибка при отправке запроса: " + res["HTTPError"], "Ошибка");
+                        break;
+                    case 2:
+                        $("#trainsDialog").dialog("close");
+                        jAlert("error", "Ошибка системы Express-3: " + res["ExpressError"], "Ошибка");
+                        break;
+                    case 3:
+                        $("#trainsDialog").dialog("close");
+                        //TODO: здесь переделать input в select
+                        jAlert("warning", "Уточните название станции", "Предупреждение");
+                        break;
+                    case 4:
+                        $("#trainsDialog").dialog("close");
+                        jAlert("error", res["Station"] + ": " + res["StationError"], "Ошибка");
                         break;
                     default:
                         break;
@@ -167,6 +187,7 @@ $("#trainsDialog").dialog({
             },
             error: function(result) {
                 $("#trainsDialog").dialog("close");
+                // TODO: Возвращать текст ошибки
                 jAlert("error", "Ошибка при отправке запроса!", "Ошибка");
             }
         });

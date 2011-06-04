@@ -220,7 +220,17 @@ function take_and_send_start()
                     jAlert("success", "Заявка принята в работу!", "Уведомление");
                     break;
                 case 1:
-                    jAlert("error", "Произошла ошибка: " + res["ExpressError"] + " (" + res["TrainIndex"] + ")!", "Ошибка");
+                    jAlert("error", "Ошибка при отправке запроса: " + res["HTTPError"], "Ошибка");
+                    break;
+                case 2:
+                    jAlert("error", "Ошибка системы Express-3: " + res["ExpressError"], "Ошибка");
+                    break;
+                case 3:
+                    //TODO: здесь переделать input в select
+                    jAlert("warning", "Уточните название станции", "Предупреждение");
+                    break;
+                case 4:
+                    jAlert("error", res["Station"] + ": " + res["StationError"], "Ошибка");
                     break;
                 default:
                     jAlert("error", "Произошла неизвестная ошибка!", "Ошибка");
@@ -229,6 +239,7 @@ function take_and_send_start()
         },
         error: function(result) {
             $("#loadingDialog").dialog("close");
+            // TODO: Возвращать текст ошибки
             jAlert("error", "Ошибка при отправке запроса!", "Ошибка");
         }
     });
