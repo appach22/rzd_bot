@@ -1,5 +1,6 @@
 #coding=UTF-8
 
+import re
 from HTMLParser import HTMLParser
 
 class MZAErrorChecker(HTMLParser):
@@ -65,6 +66,8 @@ class MZAErrorChecker(HTMLParser):
             self.errorText = data
             if self.errorText.find("2021") != -1: #ignore "Мест нет" error
                 self.inError = False
+            # Strip useless error code
+            self.errorText = re.sub('\[.*\] ', '', self.errorText)
         if self.inOption:
             self.options[len(self.options) - 1].append(data)
 
