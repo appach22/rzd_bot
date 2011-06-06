@@ -13,7 +13,6 @@
         <link rel="stylesheet" type="text/css" media="screen" href="static/themes/jquery.alerts.css" />
         <link rel="stylesheet" type="text/css" media="screen" href="static/themes/jquery.cluetip.css" />
         <link rel="stylesheet" type="text/css" media="screen" href="static/css/main.css?101" />
-        <link href="http://stg.odnoklassniki.ru/share/odkl_share.css" rel="stylesheet">
         <script type="text/javascript" src="static/js/jquery/jquery-1.6.1.min.js"></script>
         <script type="text/javascript" src="static/js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
         <script type="text/javascript" src="static/js/jquery/i18n/jquery-ui-i18n.js"></script>
@@ -21,13 +20,11 @@
         <script type="text/javascript" src="static/js/jquery/jquery.alerts.js"></script>
         <script type="text/javascript" src="static/js/jquery/jquery.cluetip.js"></script>
         <script type="text/javascript" src="http://userapi.com/js/api/openapi.js?29"></script>
-        <script type="text/javascript" src="http://vkontakte.ru/js/api/share.js?11" charset="windows-1251"></script>
-        <script src="http://stg.odnoklassniki.ru/share/odkl_share.js" type="text/javascript"></script>
         <script type="text/javascript" src="static/js/jcommon.js?101"></script>
         <script type="text/javascript" src="static/js/jsetup.js?101"></script>
         <script type="text/javascript" src="static/js/jbind.js?101"></script>
     </head>
-    <body onload="ODKL.init();">
+    <body>
         <div style="min-width: 700px;">
             <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
@@ -285,60 +282,35 @@
                 </tr>
                 <tr>
                     <td>
-                        <table align="center" border="0" cellpadding="0" cellspacing="0" width="700">
-                            <tr><td class="table-block-line"></td></tr>
+                        <table align="center" border="0" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td class="table-block-title">Понравилось? Расскажите друзьям!</td>
+                                            <td class="table-block-help"><img class="settings-helper" src="static/img/question.png" title='Контакты для оповещения|Введите адреса электронной почты, на которые присылать уведомления о свободных местах. Вы можете также ввести номер мобильного телефона, на который присылать SMS с информацией о свободных местах. Отправка SMS работает для номеров России и Украины. Формат номера: 11 знаков для российских номеров (79051112233), 12 знаков для украинских (380441112233).'></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-spacer"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr align="center">
+                                            <!-- AddThis Button BEGIN -->
+                                            <div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+                                            <a class="addthis_button_vk" title="Рассказать в контакте"></a>
+                                            <a class="addthis_button_facebook" title="Рассказать в фейсбуке"></a>
+                                            <a class="addthis_button_twitter" title="Затвитить" addthis:title="Информация о снятии брони и свободных местах в поездах на ваш e-mail и телефон:"></a>
+                                            <a class="addthis_button_livejournal" title="Рассказать в ЖЖ"></a>
+                                            <a class="addthis_button_odnoklassniki_ru" title="Рассказать в одноклассниках"></a>
+                                            <a class="addthis_button_linkedin" title="Рассказать в LinkedIn"></a>
+                                            <a class="addthis_button_compact"></a>
+                                            <a class="addthis_counter addthis_bubble_style"></a>
+                                            </div>
+                                            <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4ded32942a82752b"></script>
+                                            <!-- AddThis Button END -->
+                                        </tr>
                         </table>
                     </td>
                 </tr>
                 <tr>
                     <td height="25"></td>
-                </tr>
-                <tr>
-                    <td>
-                        <table align="center" border="0" cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td>
-                                    <script type="text/javascript"><!--
-                                    document.write(VK.Share.button({url: "http://vpoezde.com"},{type: "button", text: "Рассказать друзьям"}));
-                                    --></script>
-                                </td>
-                                <td>
-                                    <div id="fb-root"></div>
-                                    <script src="http://connect.facebook.net/en_US/all.js#appId=171183586274000&amp;xfbml=1"></script><fb:like href="http://vpoezde.com" send="true" width="450" show_faces="false" font="verdana"></fb:like>
-                                </td>
-                                <td>
-                                    <a target="_blank" class="mrc__plugin_like_button" href="http://connect.mail.ru/share?share_url=http%3A%2F%2Fvpoezde.com" data-mrc-config="{'type' : 'button', 'width' : '550', 'show_text' : 'true'}">Рассказать</a>
-                                    <script src="http://cdn.connect.mail.ru/js/loader.js" type="text/javascript" charset="UTF-8"></script>
-                                </td>
-                                <td>
-                                    <a counter="yes" type="button" size="large" share_title="Отслеживание ж/д билетов. Информация о снятии брони на ваш e-mail и телефон" name="ya-share"> </a>
-                                    <script charset="utf-8" type="text/javascript">
-                                        if(window.Ya && window.Ya.Share) {Ya.Share.update();} else
-                                        {(function(){if(!window.Ya) { window.Ya = {} };Ya.STATIC_BASE =
-                                        'http:\/\/img\-css.friends.yandex.net\/';Ya.START_BASE =
-                                        'http:\/\/my.ya.ru\/';var shareScript =
-                                        document.createElement("script");shareScript.type =
-                                        "text/javascript";shareScript.async = "true";shareScript.charset =
-                                        "utf-8";shareScript.src = Ya.STATIC_BASE +
-                                        "/js/api/Share.js";(document.getElementsByTagName("head")[0] ||
-                                        document.body).appendChild(shareScript);})();}
-                                    </script>
-                                </td>
-                                <td>
-                                    <a title="Отправить в Живую ленту Google" class="google-buzz-button"
-                                    href="http://www.google.com/buzz/post" data-button-style="small-count"
-                                    data-locale="ru"></a>
-                                    <script type="text/javascript" src="http://www.google.com/buzz/api/button.js"></script>
-                                </td>
-                                <td>
-                                    <a class="odkl-klass-stat" href="http://vpoezde.com" onclick="ODKL.Share(this);return false;" ><span>0</span></a>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td height="20"></td>
                 </tr>
                 <tr>
                     <td align="center"><font size="2">&copy; 2011 <a href="http://vpoezde.com">vpoezde.com</a></font></td>
