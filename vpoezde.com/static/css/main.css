@@ -62,6 +62,10 @@ select {
     text-align: right;
 }
 
+.table-block-line {
+    border-bottom: 1px solid #cbcbcb;
+}
+
 .table-spacer {
     height: 1em;
 }
