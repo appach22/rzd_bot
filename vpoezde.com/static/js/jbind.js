@@ -140,7 +140,7 @@ $("#trainsDialog").dialog({
                 switch(res["code"])
                 {
                     case 0:
-                        if (res["trains"].length() == 0)
+                        if (res["trains"].length == 0)
                         {
                             $("#trainsDialog").dialog("close");
                             jAlert("error", "Поезда в указанную дату не найдены!", "Ошибка");
