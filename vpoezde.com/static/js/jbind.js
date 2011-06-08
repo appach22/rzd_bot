@@ -28,7 +28,7 @@ $("#destinationField").autocomplete({
 });
 
 // masked phones
-$(".cellField").mask({mask: "7 (###) ###-##-##"});
+$(".cellField").mask({mask: "+7 (###) ###-##-##"});
 
 // select country
 $("#countryField").change(function() {
@@ -38,10 +38,10 @@ $("#countryField").change(function() {
     switch($(this).val())
     {
         case "0":
-            $(".cellField").mask({mask: "7 (###) ###-##-##"});
+            $(".cellField").mask({mask: "+7 (###) ###-##-##"});
             break;
         case "1":
-            $(".cellField").mask({mask: "38 (###) ###-##-##"});
+            $(".cellField").mask({mask: "+38 (###) ###-##-##"});
             break;
         default:
             break;
