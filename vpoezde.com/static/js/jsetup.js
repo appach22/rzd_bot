@@ -24,6 +24,10 @@ $(".short-field").each(function() {
     $(this).val("");
 });
 
+$(".long-field-sl").each(function() {
+    $(this).val("0");
+});
+
 // govnokontakt
 try {
     VK.Widgets.Group("govnovk_groups", {mode: 1, width: "200", height: "290"}, 22031480);

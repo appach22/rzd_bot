@@ -15,6 +15,7 @@
         <link rel="stylesheet" type="text/css" media="screen" href="static/css/main.css?101" />
         <script type="text/javascript" src="static/js/jquery/jquery-1.6.1.min.js"></script>
         <script type="text/javascript" src="static/js/jquery/jquery-ui-1.8.13.custom.min.js"></script>
+        <script type="text/javascript" src="static/js/jquery/ui.mask.js"></script>
         <script type="text/javascript" src="static/js/jquery/i18n/jquery-ui-i18n.js"></script>
         <script type="text/javascript" src="static/js/jquery/jquery.jsonrpc.js"></script>
         <script type="text/javascript" src="static/js/jquery/jquery.alerts.js"></script>
@@ -197,8 +198,8 @@
                                         <tr>
                                             <td class="table-block-name">Тип вагона:</td>
                                             <td class="table-block-param">
-                                                <select id="wagonField" class="long-field">
-                                                    <option value="0">Любой</option>
+                                                <select id="wagonField" class="long-field-sl">
+                                                    <option value="0" selected="selected">Любой</option>
                                                     <option value="1">Сидячий</option>
                                                     <option value="2">Плацкартный</option>
                                                     <option value="3">Купейный</option>
@@ -245,6 +246,15 @@
                                                         <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="emailMinus" /></td>
                                                     </tr>
                                                 </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-name">Страна:</td>
+                                            <td class="table-block-param">
+                                                <select id="countryField" class="long-field-sl">
+                                                    <option value="0" selected="selected">Россия</option>
+                                                    <option value="1">Украина</option>
+                                                </select>
                                             </td>
                                         </tr>
                                         <tr>
