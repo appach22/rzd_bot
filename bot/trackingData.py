@@ -31,6 +31,7 @@ class TrackingData:
         self.ip_addr = ""
         self.sms_count = 0
         self.creation_date = date.fromtimestamp(0)
+        self.script = ''
         
     def getStationId(self, station):
         try:
@@ -223,9 +224,9 @@ class TrackingData:
                     self.uid = cursor.lastrowid
 
                     query = """INSERT INTO bot_dynamic_info
-                            (uid, pid, expiration_date)
-                            VALUES(%d, %d, '%s')""" % \
-                            (self.uid, self.pid, self.expires.strftime("%Y-%m-%d"))
+                            (uid, pid, expiration_date, script)
+                            VALUES(%d, %d, '%s', '%s')""" % \
+                            (self.uid, self.pid, self.expires.strftime("%Y-%m-%d"), self.script)
                     cursor.execute(query)
                     
                 except MySQLdb.Error, e:
@@ -296,6 +297,7 @@ class TrackingData:
                     if not row == None:
                         self.pid = row[1]
                         self.expires = row[2]
+                        self.script = row[3]
 
                 except MySQLdb.Error, e:
                     print "Error %d: %s" % (e.args[0], e.args[1])

@@ -2,11 +2,14 @@ import os
 import errno
 import MySQLdb
 import trackingData
-from bot import Bot
+#from bot import Bot
 from datetime import date
 import time
 from syslog import syslog
+import sys
+import fcntl
 
+sys.path.remove(os.path.dirname(os.path.realpath(__file__)))
 
 host = "localhost"
 database = "rzdtickets.ru"
@@ -22,14 +25,23 @@ def RestartTracking(uid):
         while data.trains[0][0] < date.today():
             print "Removing old date", data.trains[0][0].strftime("%Y-%m-%d")
             del data.trains[0]
+        if data.script == None or data.script == '':
+            data.script = os.path.dirname(os.path.realpath(__file__))
+        sys.path.append(data.script)
+        from bot import Bot
         bot = Bot()
         bot.daemonize(target=bot.newTracking, args=(data, True))
         time.sleep(10)
+        sys.path.remove(data.script)
     else:
         print "Error loading tracking %d from the main table" % uid
 
     
 def CheckAll():
+    # prevent parallel execution
+    lockfd = open('/tmp/bot-watchdog.lock', 'w')
+    fcntl.flock(lockfd, fcntl.LOCK_EX)
+
     try:
         conn = MySQLdb.connect(passwd = passw,
                                db = database,

@@ -41,6 +41,7 @@ class Bot:
         data = trackingData.TrackingData()
         data.loadFromDict(data_dict)
         data.ip_addr = self.remote_addr
+        data.script = os.path.dirname(os.path.abspath(__file__))
         # Проверяем на корректность номера поездов и даты
         checker = pageChecker.MZAErrorChecker()
         res = 255
