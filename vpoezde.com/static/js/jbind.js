@@ -27,6 +27,27 @@ $("#destinationField").autocomplete({
     minLength: 2
 });
 
+// masked phones
+$(".cellField").mask({mask: "7 (###) ###-##-##"});
+
+// select country
+$("#countryField").change(function() {
+    $(".cellField").mask("destroy");
+    $(".cellField").val("");
+
+    switch($(this).val())
+    {
+        case "0":
+            $(".cellField").mask({mask: "7 (###) ###-##-##"});
+            break;
+        case "1":
+            $(".cellField").mask({mask: "38 (###) ###-##-##"});
+            break;
+        default:
+            break;
+    }
+});
+
 // stop dialog
 $("#stopDialog").dialog({
     modal: true,
@@ -295,8 +316,6 @@ $("#submitStart").click(function() {
     if(!validate_dates())
         return false;
     if(!validate_trains())
-        return false;
-    if(!validate_all_cells())
         return false;
     if(!validate_all_emails())
         return false;

@@ -140,39 +140,6 @@ function validate_int(obj)
     return /^[0-9]+$/.test(obj.val());
 }
 
-function validate_cell(obj)
-{
-    if(!validate_int(obj))
-        return false
-    if(obj.val().length < 11 || obj.val().length > 12)
-        return false
-
-    return true;
-}
-
-function validate_all_cells()
-{
-    var ret = true;
-
-    // validate cells
-    $(".cellField").each(function() {
-        if(validate_text($(this)) && !validate_cell($(this)))
-        {
-            $(this).addClass("fieldError");
-            jAlert("error", "Номер телефона \"" + $(this).val() + "\" введен неверно!", "Ошибка");
-            ret = false;
-            return false;
-        }
-        else
-        {
-            if($(this).hasClass("fieldError"))
-                $(this).removeClass("fieldError");
-        }
-    });
-
-    return ret;
-}
-
 function take_and_send_start()
 {
     var trains = new Array();
@@ -203,7 +170,21 @@ function take_and_send_start()
 
     $(".cellField").each(function() {
         if(validate_text($(this)))
-            sms.push(parseInt($(this).val(), 10));
+        {
+            var prefix = "7";
+            switch($("#countryField").val())
+            {
+                case "0":
+                    prefix = "7";
+                    break;
+                case "1":
+                    prefix = "38";
+                    break;
+                default:
+                    break;
+            }
+            sms.push(parseInt(prefix + $(this).mask("value"), 10));
+        }
     });
 
     $.jsonRPC.request("start", {

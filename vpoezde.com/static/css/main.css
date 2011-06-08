@@ -92,6 +92,10 @@ select {
     width: 200px;
 }
 
+.long-field-sl {
+    width: 205px;
+}
+
 .short-field {
     width: 100px;
 }
