@@ -12,6 +12,11 @@ import urllib2
 
 
 bot = Bot()
+res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "007А"]}''')
+print res
+sys.exit(0)
+
+bot = Bot()
 res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainsList", "params": ["Санкт-Петербург", "Москва", 1305839921]}''')
 print res
 sys.exit(0)

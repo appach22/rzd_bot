@@ -295,6 +295,63 @@ class Bot:
         return ret
 
 
+    def getTrainStatistics(self, station_from, station_to, train):
+        ret = {}
+        ret['places'] = []
+        request_date = date.today()
+        data = trackingData.TrackingData()
+        id = data.getStationId(station_from.encode('utf-8'))
+        if not id == 0:
+            sfrom = str(id)
+        else:
+            sfrom = station_from.encode('utf-8')
+        id = data.getStationId(station_to.encode('utf-8'))
+        if not id == 0:
+            sto = str(id)
+        else:
+            sto = station_to.encode('utf-8')
+
+        for day in range(45):
+            request_text = "TrainPlaces_DepDate=" + request_date.strftime("%d.%m.%Y") + \
+                    "&TrainPlaces_StationFrom=" + sfrom + \
+                    "&TrainPlaces_StationTo=" + sto + \
+                    "&TrainPlaces_TrainN=" + train.encode('utf-8') + \
+                    "&spr=TrainPlaces" + \
+                    "&submit_TrainPlaces=Показать"
+            success = False
+            cnt = 0
+            while (not success) and cnt < 7:
+                cnt += 1
+                try:
+                    request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=request_text)
+                    response = urllib2.urlopen(request)
+                except urllib2.HTTPError as err:
+                    time.sleep(1)
+                except urllib2.URLError as err:
+                    time.sleep(1)
+                else:
+                    page = response.read()
+                    checker = pageChecker.MZAErrorChecker()
+                    if not checker.CheckPage(page) == 0:
+                        time.sleep(1)
+                        continue
+                    success = True
+                    break
+            if not success:
+                request_date += timedelta(days=1)
+                continue
+            parser = MZAParser()
+            parser.ParsePage(page)
+            places = [0, 0, 0, 0]
+            for car in parser.result:
+                places[car[1] - 1] += len(car[2])
+            ret['places'].append([request_date.strftime("%d.%m"), places])
+            request_date += timedelta(days=1)
+
+        ret['code'] = 0
+        return ret
+
+
     def call(self, request_text):
         try:
             rawreq = simplejson.loads(request_text)
