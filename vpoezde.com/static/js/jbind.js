@@ -17,15 +17,22 @@ $(".settings-helper").cluetip({
 });
 
 // autocomplete
-$("#sourceField").autocomplete({
-    source: "stations.php",
-    minLength: 2
-});
-
-$("#destinationField").autocomplete({
-    source: "stations.php",
-    minLength: 2
-});
+var setAutocomplete = function(el) {
+if(el == 1 || el == 3)
+{
+    $("#sourceField").autocomplete({
+        source: "stations.php",
+        minLength: 2
+    });
+}
+if(el == 2 || el == 3)
+{
+    $("#destinationField").autocomplete({
+        source: "stations.php",
+        minLength: 2
+    });
+}
+}; setAutocomplete(3);
 
 // masked phones
 $(".cellField").mask({mask: "+7 (###) ###-##-##"});
@@ -164,6 +171,7 @@ $("#trainsDialog").dialog({
                         if (res["trains"].length == 0)
                         {
                             $("#trainsDialog").dialog("close");
+                            trainFocused.val("");
                             jAlert("error", "Поезда в указанную дату не найдены!", "Ошибка");
                             break;
                         }
@@ -186,19 +194,23 @@ $("#trainsDialog").dialog({
                         break;
                     case 1:
                         $("#trainsDialog").dialog("close");
+                        trainFocused.val("");
                         jAlert("error", "Ошибка при отправке запроса: " + res["HTTPError"], "Ошибка");
                         break;
                     case 2:
                         $("#trainsDialog").dialog("close");
+                        trainFocused.val("");
                         jAlert("error", "Ошибка системы Express-3: " + res["ExpressError"], "Ошибка");
                         break;
                     case 3:
                         $("#trainsDialog").dialog("close");
-                        //TODO: здесь переделать input в select
+                        trainFocused.val("");
+                        input_to_select(res);
                         jAlert("warning", "Уточните название станции", "Предупреждение");
                         break;
                     case 4:
                         $("#trainsDialog").dialog("close");
+                        trainFocused.val("");
                         jAlert("error", res["Station"] + ": " + res["StationError"], "Ошибка");
                         break;
                     default:
@@ -220,7 +232,7 @@ $("#trainsDialog").dialog({
     }
 });
 
-$(".trainListEl").live("change", function(e) {
+$(".trainListEl").live("change", function() {
     trainFocused.val($(this).val());
     $("#trainsDialog").dialog("close");
 });
@@ -233,6 +245,17 @@ $("#loadingDialog").dialog({
     autoOpen: false,
     resizable: false,
     dialogClass: "noTitleStuff"
+});
+
+// bind to stations reset
+$(".station1rst").click(function() {
+    select_to_input($(this), "sourceField");
+    setAutocomplete(1);
+});
+
+$(".station2rst").click(function() {
+    select_to_input($(this), "destinationField");
+    setAutocomplete(2);
 });
 
 // bind to plus & minus

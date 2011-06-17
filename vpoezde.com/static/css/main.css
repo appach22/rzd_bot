@@ -47,6 +47,12 @@ select {
     width: 900px;
 }
 
+.header {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2e6e9e;
+}
+
 .table-block-title {
     color: black;
     border-bottom: 1px solid #cbcbcb;
@@ -100,11 +106,14 @@ select {
     width: 100px;
 }
 
-.plus-minus {
+.plus-minus, .cross {
     padding: 2px;
 }
 
-.datePlus, .trainPlus, .dateMinus, .trainMinus, .emailPlus, .emailMinus {
+.datePlus, .dateMinus,
+.trainPlus, .trainMinus,
+.emailPlus, .emailMinus ,
+.station1rst, .station2rst {
     cursor: pointer;
 }
 
@@ -184,10 +193,4 @@ select {
     margin-left: -11px;
     height: 11px;
     width: 22px;
-}
-
-.header {
-    font-size: 22px;
-    font-weight: bold;
-    color: #2e6e9e;
 }
