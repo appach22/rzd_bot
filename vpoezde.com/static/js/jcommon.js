@@ -140,13 +140,48 @@ function validate_int(obj)
     return /^[0-9]+$/.test(obj.val());
 }
 
+function validate_places()
+{
+    var ret = true;
+
+    if(validate_text($("#placesFrom")) && !validate_text($("#placesTo")))
+        $("#placesTo").val("120");
+    if(validate_text($("#placesTo")) && !validate_text($("#placesFrom")))
+        $("#placesFrom").val("1");
+
+    if(validate_text($("#placesFrom")))
+        if((parseInt($("#placesFrom").val(), 10) < 1 || parseInt($("#placesFrom").val(), 10) > 120))
+            ret = false;
+
+    if(validate_text($("#placesTo")))
+        if((parseInt($("#placesTo").val(), 10) < 1 || parseInt($("#placesTo").val(), 10) > 120))
+            ret = false;
+
+    if(!ret)
+        jAlert("warning", "Диапазон номеров должен быть 1-120.", "Предупреждение");
+
+    return ret;
+}
+
 function take_and_send_start()
 {
+    var route_from = null;
+    var route_to = null;
     var trains = new Array();
     var emails = new Array();
     var sms = new Array();
 
     $("#loadingDialog").dialog("open");
+
+    if($("#sourceField").is(":text"))
+        route_from = $("#sourceField").val();
+    else
+        route_from = $("#sourceField :selected").text();
+
+    if($("#destinationField").is(":text"))
+        route_to = $("#destinationField").val();
+    else
+        route_to = $("#destinationField :selected").text();
 
     for(var i = 1; i < 4; i++)
     {
@@ -188,8 +223,14 @@ function take_and_send_start()
     });
 
     $.jsonRPC.request("start", {
-        params: [{"route_from": $("#sourceField").val(), "route_to": $("#destinationField").val(),
+        params: [{"route_from": route_from, "route_to": route_to,
                  "trains": trains, "car_type": parseInt($("#wagonField").val(), 10),
+                 "range": [validate_text($("#placesFrom")) ?
+                                                           parseInt($("#placesFrom").val(), 10) : 1,
+                           validate_text($("#placesTo")) ?
+                                                           parseInt($("#placesTo").val(), 10) : 120
+                          ],
+                 "parity": $("#highPlaces").attr("checked") ? $("#lowPlaces").attr("checked") ? 3 : 2 : $("#lowPlaces").attr("checked") ? 1 : 3, // удачной отладки
                  "emails": emails, "sms": sms
         }],
         success: function(result) {
@@ -207,7 +248,7 @@ function take_and_send_start()
                     jAlert("error", "Ошибка системы Express-3: " + res["ExpressError"], "Ошибка");
                     break;
                 case 3:
-                    //TODO: здесь переделать input в select
+                    input_to_select(res);
                     jAlert("warning", "Уточните название станции", "Предупреждение");
                     break;
                 case 4:
@@ -224,4 +265,34 @@ function take_and_send_start()
             jAlert("error", "Ошибка при отправке запроса!", "Ошибка");
         }
     });
+}
+
+function input_to_select(res)
+{
+    var targetField = "sourceField";
+
+    if($(".station" + res["StationNum"] + "rst").hasClass("disabledField"))
+        $(".station" + res["StationNum"] + "rst").removeClass("disabledField");
+
+    if(1 == res["StationNum"])
+        targetField = "sourceField";
+    else if(2 == res["StationNum"])
+        targetField = "destinationField";
+
+    $("#" + targetField).after('<select id="' + targetField + '" class="long-field-sl"></select>').remove();
+    $("#" + targetField).empty();
+
+    for(i in res["StationOptions"])
+    {
+        var station = res["StationOptions"][i];
+        $("#" + targetField).append($('<option value="' + station[0] + '">' + station[1] + '</option>'));
+    }
+}
+
+function select_to_input(el, targetField)
+{
+    var val = $("#" + targetField + " :selected").text();
+    $(el).addClass("disabledField");
+    $("#" + targetField).after('<input type="text" id="' + targetField + '" class="long-field" />').remove();
+    $("#" + targetField).val(val);
 }
