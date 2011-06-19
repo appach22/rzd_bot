@@ -106,6 +106,10 @@ select {
     width: 100px;
 }
 
+.mini-field {
+    width: 85px;
+}
+
 .plus-minus, .cross {
     padding: 2px;
 }

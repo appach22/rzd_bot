@@ -340,6 +340,8 @@ $("#submitStart").click(function() {
         return false;
     if(!validate_trains())
         return false;
+    if(!validate_places())
+        return false;
     if(!validate_all_emails())
         return false;
 

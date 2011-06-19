@@ -24,8 +24,16 @@ $(".short-field").each(function() {
     $(this).val("");
 });
 
+$(".mini-field").each(function() {
+    $(this).val("");
+});
+
 $(".long-field-sl").each(function() {
     $(this).val("0");
+});
+
+$(".checkbox-field").each(function() {
+    $(this).attr("checked", true);
 });
 
 // govnokontakt

@@ -140,6 +140,29 @@ function validate_int(obj)
     return /^[0-9]+$/.test(obj.val());
 }
 
+function validate_places()
+{
+    var ret = true;
+
+    if(validate_text($("#placesFrom")) && !validate_text($("#placesTo")))
+        $("#placesTo").val("120");
+    if(validate_text($("#placesTo")) && !validate_text($("#placesFrom")))
+        $("#placesFrom").val("1");
+
+    if(validate_text($("#placesFrom")))
+        if((parseInt($("#placesFrom").val(), 10) < 1 || parseInt($("#placesFrom").val(), 10) > 120))
+            ret = false;
+
+    if(validate_text($("#placesTo")))
+        if((parseInt($("#placesTo").val(), 10) < 1 || parseInt($("#placesTo").val(), 10) > 120))
+            ret = false;
+
+    if(!ret)
+        jAlert("warning", "Диапазон номеров должен быть 1-120.", "Предупреждение");
+
+    return ret;
+}
+
 function take_and_send_start()
 {
     var route_from = null;
@@ -202,6 +225,12 @@ function take_and_send_start()
     $.jsonRPC.request("start", {
         params: [{"route_from": route_from, "route_to": route_to,
                  "trains": trains, "car_type": parseInt($("#wagonField").val(), 10),
+                 "range": [validate_text($("#placesFrom")) ?
+                                                           parseInt($("#placesFrom").val(), 10) : 1,
+                           validate_text($("#placesTo")) ?
+                                                           parseInt($("#placesTo").val(), 10) : 120
+                          ],
+                 "parity": $("#highPlaces").attr("checked") ? $("#lowPlaces").attr("checked") ? 3 : 2 : $("#lowPlaces").attr("checked") ? 1 : 3, // удачной отладки
                  "emails": emails, "sms": sms
         }],
         success: function(result) {
