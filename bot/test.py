@@ -9,10 +9,34 @@ import sys
 from pageParser import MZATrainsListParser
 import pageChecker
 import urllib2
+from filter import PlacesFilter
 
+data = TrackingData()
+data.loadFromDict({     "route_from":"",\
+                        "route_to":"",\
+                        "trains":[\
+                                  [1305510400, "049"],\
+                                  [1305511100, "121"]\
+                                  ],\
+                        "car_type":3,\
+                        "emails":["s.stasishin@gmail.com", "stasishin@speechpro.com"],\
+                        "sms":[],\
+                        "expires":12378789,\
+                        "period":60,\
+                        "uid":123474,\
+                        "range":[9, 28],\
+                        "parity":1\
+                    })
+filt = PlacesFilter()
+places = [[2, 2, [[1], [2], [26]]], [5, 3, [[1], [2], [8], [9], [23], [24], [25], [28], [33]]], [6, 3, [[9], [10], [11], [12], [13]]]]
+#places = [[2, 2, [[1], [2], [26]]], [5, 3, [[1], [2], [8], [9], [23], [24], [25], [28], [33]]], [6, 3, [[5], [6], [7], [8], [9], [10], [11], [12], [13], [14], [33], [34]]]]
+filt.applyFilter(places, data)
+print filt.totalPlaces
+print filt.filteredPlaces
+sys.exit(0)
 
 bot = Bot()
-res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "007А"]}''')
+res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "143А"]}''')
 print res
 sys.exit(0)
 

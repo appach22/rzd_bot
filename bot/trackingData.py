@@ -32,6 +32,8 @@ class TrackingData:
         self.sms_count = 0
         self.creation_date = date.fromtimestamp(0)
         self.script = ''
+        self.places_parity = 3 #both, upper and lower
+        self.places_range = [0, 200]
         
     def getStationId(self, station):
         try:
@@ -152,10 +154,12 @@ class TrackingData:
                 del self.trains[len(self.trains) - 1]
 
             self.car_type = int(dict["car_type"])
-            self.emails = dict["emails"]
-            self.sms = dict["sms"]
+            self.emails = list(dict["emails"])
+            self.sms = list(dict["sms"])
             self.expires = self.trains[len(self.trains) - 1][0] + timedelta(1)
             self.period = 300
+            self.places_parity = dict["parity"]
+            self.places_range = list(dict["range"])
             self.uid = 0
         except:
             raise
@@ -210,15 +214,17 @@ class TrackingData:
                     query = """INSERT INTO bot_static_info 
                                 (username, emails, sms, creation_date,
                                  station_from, station_to, date1, trains1,
-                                 date2, trains2, date3, trains3, car_type,
+                                 date2, trains2, date3, trains3, places_range_low,
+                                 places_range_high, places_parity, car_type,
                                  ip_addr, sms_count)
-                                 VALUES('%s', '%s', '%s', NOW(), '%s', '%s',
-                                 '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', %d)""" % \
+                                 VALUES('%s', '%s', '%s', NOW(), '%s', '%s', '%s', '%s',
+                                 '%s', '%s', '%s', '%s', %d, %d, %d, %d, '%s', %d)""" % \
                                  (self.username,
                                  ','.join(str(n) for n in self.emails),
                                  ','.join(str(n) for n in self.sms),
                                  self.route_from, self.route_to, date1, trains1,
-                                 date2, trains2, date3, trains3, self.car_type,
+                                 date2, trains2, date3, trains3, self.places_range[0],
+                                 self.places_range[1], self.places_parity, self.car_type,
                                  self.ip_addr, self.sms_count)
                     cursor.execute(query)
                     self.uid = cursor.lastrowid
@@ -287,6 +293,9 @@ class TrackingData:
                     for t in trains:
                         if not len(t) == 0:
                             self.trains.append([row[11], t])
+                    self.places_range[0] = row[13]
+                    self.places_range[1] = row[14]
+                    self.places_parity = row[15]
                     self.car_type = int(row[16])
                     self.ip_addr = row[17]
                     self.sms_count = row[18]

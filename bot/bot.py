@@ -128,6 +128,7 @@ class Bot:
              
     def run(self, data):
         prevs = [0 for i in range(len(data.trains))]
+        total_prevs = [0 for i in range(len(data.trains))]
         while not self.terminated and data.expires > date.today():
             if datetime.now().hour == 3:
                 time.sleep(60)
@@ -156,22 +157,21 @@ class Bot:
                     continue
 
                 filter = PlacesFilter()
-                curr = filter.applyFilter(parser.result, data)
-                if curr == 0 and curr < prevs[i]:
-                    fd = open("%s/page.%d.html" % (self.output_dir, os.getpid()), "w")
-                    fd.write(page)
-                    fd.close()
+                filter.applyFilter(parser.result, data)
+                curr = filter.getMatchedCount()
+                total_curr = filter.getTotalCount()
                 if curr > prevs[i]:
                     # new tickets have arrived!!!
                     #print "%d ==> %d" % (prevs[i], curr)
                     self.makeEmailText(data, i, filter.filteredPlaces)
                     self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                                 data.emails,
-                                "Билеты (+%d новых) [Заявка %d: %s - %s]" % (curr - prevs[i], data.uid, data.route_from, data.route_to),
+                                "Билеты (+%d новых) [Заявка %d: %s - %s]" % (total_curr - total_prevs[i], data.uid, data.route_from, data.route_to),
                                 "plain",
                                 self.makeEmailText(data, i, filter.filteredPlaces))
-                    self.sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (curr, curr - prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
+                    self.sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (total_curr, total_curr - total_prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
                 prevs[i] = curr
+                total_prevs[i] = total_curr
             
             time.sleep(data.period)
 
