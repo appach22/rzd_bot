@@ -411,3 +411,39 @@ class TrackingData:
                 conn.close()
 
         return 0
+        
+    def getStationById(self, stationId):
+        res = stationId
+        try:
+            conn = MySQLdb.connect(host = host,
+                                   user = user,
+                                   passwd = passw,
+                                   db = database,
+                                   charset = "utf8", 
+                                   use_unicode = True)
+        except MySQLdb.Error, e:
+            print "Error %d: %s" % (e.args[0], e.args[1])
+            return 1
+        else:
+            try:
+                cursor = conn.cursor()
+            except MySQLdb.Error, e:
+                print "Error %d: %s" % (e.args[0], e.args[1])
+                return 1
+            else:
+                try:    
+                    query = """SELECT `station_name`,`trainway_name` FROM `stations_t4you.ru` WHERE `station_code`='%s'""" % (stationId)
+                    cursor.execute(query)
+                    row = cursor.fetchone()
+                    if not row == None:
+                        res = row[0] + ' (' + stationId + '), ' + row[1]
+                except MySQLdb.Error, e:
+                    print "Error %d: %s" % (e.args[0], e.args[1])
+                    return 1
+                finally:
+                    cursor.close()
+            finally:
+                conn.close()
+
+        return res
+

@@ -181,7 +181,7 @@ function take_and_send_start()
     if($("#sourceField").is(":text"))
         route_from = $("#sourceField").val();
     else
-        route_from = $("#sourceField :selected").text();
+        route_from = $("#sourceField :selected").val();
 
     if($("#destinationField").is(":text"))
         route_to = $("#destinationField").val();

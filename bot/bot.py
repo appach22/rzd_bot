@@ -66,10 +66,13 @@ class Bot:
                     ret["TrainIndex"] = i
                     ret["ExpressError"] = checker.errorText
                     return ret
-                elif res == 2: #station number is ambiguous
+                elif res == 2: #station name is ambiguous
                     ret["code"] = 3
                     ret["StationNum"] = checker.stationNum
                     ret["StationOptions"] = checker.options
+                    for station in ret["StationOptions"]:
+                        station.append(data.getStationById(station[0].encode('utf-8')))
+                    f.close()
                     return ret
                 elif res == 3: #station name is incorrect
                     ret["code"] = 4

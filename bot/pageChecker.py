@@ -68,8 +68,8 @@ class MZAErrorChecker(HTMLParser):
                 self.inError = False
             # Strip useless error code
             self.errorText = re.sub('\[.*\] ', '', self.errorText)
-        if self.inOption:
-            self.options[len(self.options) - 1].append(data)
+#        if self.inOption:
+#            self.options[len(self.options) - 1].append(data)
 
     def CheckPage(self, page):
         self.err = 255
