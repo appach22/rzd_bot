@@ -169,7 +169,10 @@ class Bot:
                                 "Билеты (+%d новых) [Заявка %d: %s - %s]" % (total_curr - total_prevs[i], data.uid, data.route_from, data.route_to),
                                 "plain",
                                 self.makeEmailText(data, i, filter.filteredPlaces))
-                    self.sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (total_curr, total_curr - total_prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
+                    if data.sms_count < 29:
+                        self.sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (total_curr, total_curr - total_prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
+                    if data.sms_count == 29:
+                        self.sms.send("vpoezde.com", "Для заявки %d достигнут предел количества sms-сообщений!" % (data.uid), data)
                 prevs[i] = curr
                 total_prevs[i] = total_curr
             
