@@ -32,7 +32,7 @@ class PlacesFilter:
         return count
 
     def getMatchedCount(self):
-        return getCount(self.filteredPlaces)
+        return self.getCount(self.filteredPlaces)
 
     def getTotalCount(self):
-        return getCount(self.totalPlaces)
+        return self.getCount(self.totalPlaces)
