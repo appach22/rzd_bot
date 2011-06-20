@@ -150,12 +150,17 @@ function validate_places()
         $("#placesFrom").val("1");
 
     if(validate_text($("#placesFrom")))
-        if((parseInt($("#placesFrom").val(), 10) < 1 || parseInt($("#placesFrom").val(), 10) > 120))
+    {
+        var from = parseInt($("#placesFrom").val(), 10) || 0;
+        if(from < 1 || from > 120)
             ret = false;
-
+    }
     if(validate_text($("#placesTo")))
-        if((parseInt($("#placesTo").val(), 10) < 1 || parseInt($("#placesTo").val(), 10) > 120))
+    {
+        var to = parseInt($("#placesTo").val(), 10) || 0;
+        if(to < 1 || to > 120)
             ret = false;
+    }
 
     if(!ret)
         jAlert("warning", "Диапазон номеров должен быть 1-120.", "Предупреждение");
