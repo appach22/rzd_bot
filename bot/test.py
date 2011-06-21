@@ -10,6 +10,15 @@ from pageParser import MZATrainsListParser
 import pageChecker
 import urllib2
 from filter import PlacesFilter
+from pageParser import MZAParser
+
+parser = MZAParser()
+f = open('index.php', 'r')
+page = f.read()
+f.close()
+parser.ParsePage(page)
+print parser.result
+sys.exit(0)
 
 data = TrackingData()
 data.loadFromDict({     "route_from":"",\

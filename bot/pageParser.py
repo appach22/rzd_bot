@@ -11,8 +11,10 @@ class MZAParser(HTMLParser):
         self.inHeader = False
         self.inPlaces = False
         self.inCar = False
+        self.inPrice = False
         self.count = 0
         self.err = 0
+        self.carType = 0
         self.result = []
 
     def handle_starttag(self, tag, attrs):
@@ -25,6 +27,7 @@ class MZAParser(HTMLParser):
         td_class = attrs[0][1]
         if td_class == "h" :
           self.inHeader = True
+          self.prices = []
         if td_class == "tb" and self.inType :
           self.inPlaces = True
         if td_class == "bb" and self.inType :
@@ -41,7 +44,7 @@ class MZAParser(HTMLParser):
         if data.find(u"Сидячий") != -1:
           self.inType = True
           self.carType = 1
-        if data.find(u"Плацкартный") != -1:
+        elif data.find(u"Плацкартный") != -1:
           self.inType = True
           self.carType = 2
         elif data.find(u"Купейный") != -1:
@@ -50,11 +53,13 @@ class MZAParser(HTMLParser):
         elif data.find(u"Вагон СВ") != -1:
           self.inType = True
           self.carType = 4
+        elif data.find(u"Стоимость:") != -1:
+          self.prices.append((data.split(' ')[1]).encode('utf-8'))
       if self.inPlaces :
         pos = data.find(u"Свободные места: ")
         if pos != -1 :
           places = [self.parsePlace(s) for s in data[pos+17:].split(", ")]
-          self.result.append([self.car, self.carType, places])
+          self.result.append([self.car, self.carType, places, self.prices])
           self.count += len(places)
       if self.inCar :
         pos = data.find(u"вагон №: ")

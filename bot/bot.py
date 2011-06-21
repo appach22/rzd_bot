@@ -166,12 +166,11 @@ class Bot:
                 if curr > prevs[i]:
                     # new tickets have arrived!!!
                     #print "%d ==> %d" % (prevs[i], curr)
-                    self.makeEmailText(data, i, filter.filteredPlaces)
                     self.mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                                 data.emails,
                                 "Билеты (+%d новых) [Заявка %d: %s - %s]" % (total_curr - total_prevs[i], data.uid, data.route_from, data.route_to),
                                 "plain",
-                                self.makeEmailText(data, i, filter.filteredPlaces))
+                                self.makeEmailText(data, i, filter.totalPlaces))
                     if data.sms_count < 29:
                         self.sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (total_curr, total_curr - total_prevs[i], data.trains[i][0].strftime("%d.%m.%Y"), data.trains[i][1]), data)
                     if data.sms_count == 29:
@@ -192,19 +191,20 @@ class Bot:
         text = data.trains[train_index][0].strftime("%d.%m.%Y")
         text += "\n%s - %s\n" % (data.route_from, data.route_to)
         text += "Поезд %s\n" % data.trains[train_index][1]
-        text += "В продаже имеются следующие места:"
+        text += "В продаже имеются следующие места:\n"
         # TODO: передавать тип вагона полностью
         for car in places:
             type = ""
             if car[1] == 1:
-                type = "Сидячий"
+                type = "сидячий"
             if car[1] == 2:
-                type = "Плацкартный"
+                type = "плацкартный"
             elif car[1] == 3:
-                type = "Купейный"
+                type = "купейный"
             elif car[1] == 4:
                 type = "СВ"
-            text += "\nВагон №%02d (%s): " % (car[0], type)
+            price = '/'.join(car[3])
+            text += "\nВагон №%02d\nТип: %s\nСтоимость: %s\nСвободные места: " % (car[0], type, price)
             for place in car[2]:
                 text += str(place[0])
                 if len(place) > 1:
@@ -218,6 +218,7 @@ class Bot:
                         text += "С"
                 if place != car[2][len(car[2]) - 1]:
                     text += ", "
+            text += '\n'
         return text
 
 
