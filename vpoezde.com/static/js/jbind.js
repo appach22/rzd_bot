@@ -151,7 +151,9 @@ $("#trainsDialog").dialog({
                                    '<tr><td align="center"><img src="static/img/loader.gif" border="0" alt="" /></td></tr>');
 
         var thisDate = parseInt(get_time_t($("." + trainFocused.closest("tr").closest("td").closest("tr").attr("id") + "f")), 10);
-        //$("#trainsDialog").get(0).title = "Список поездов по маршруту " + $("#sourceField").val() + " - " + $("#destinationField").val() + " на ";
+
+        $("#trainsDialog").dialog("option", "title", "Список поездов по маршруту " + $("#sourceField").val() + " - " + $("#destinationField").val() + " на ");
+
         $.jsonRPC.request("getTrainsList", {
             params: [$("#sourceField").val(), $("#destinationField").val(), thisDate],
             success: function(result) {

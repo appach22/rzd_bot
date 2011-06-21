@@ -186,7 +186,7 @@ function take_and_send_start()
     if($("#destinationField").is(":text"))
         route_to = $("#destinationField").val();
     else
-        route_to = $("#destinationField :selected").text();
+        route_to = $("#destinationField :selected").val();
 
     for(var i = 1; i < 4; i++)
     {
@@ -296,7 +296,7 @@ function input_to_select(res)
 
 function select_to_input(el, targetField)
 {
-    var val = $("#" + targetField + " :selected").text();
+    var val = $("#" + targetField + " :selected").text().split(" (")[0];
     $(el).addClass("disabledField");
     $("#" + targetField).after('<input type="text" id="' + targetField + '" class="long-field" />').remove();
     $("#" + targetField).val(val);
