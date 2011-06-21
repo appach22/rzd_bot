@@ -2,7 +2,7 @@ $(function() {
 
 var trainFocused = null;
 
-$(".dateField").datepicker({dateFormat: "yy-mm-dd", changeMonth: true, changeYear: true});
+$(".dateField").datepicker({dateFormat: "dd.mm.yy", changeMonth: true, changeYear: true});
 
 // FAQ
 $("#topFAQ").accordion({collapsible: true, active: false, autoHeight: false});
@@ -150,12 +150,13 @@ $("#trainsDialog").dialog({
                                    '<tr><td height="10"></td></tr>' +
                                    '<tr><td align="center"><img src="static/img/loader.gif" border="0" alt="" /></td></tr>');
 
-        var thisDate = parseInt(get_time_t($("." + trainFocused.closest("tr").closest("td").closest("tr").attr("id") + "f")), 10);
+        var thisDateObj = $("." + trainFocused.closest("tr").closest("td").closest("tr").attr("id") + "f");
+        var thisDateInt = parseInt(get_time_t(thisDateObj), 10);
 
-        $("#trainsDialog").dialog("option", "title", "Список поездов по маршруту " + $("#sourceField").val() + " - " + $("#destinationField").val() + " на ");
+        $("#trainsDialog").dialog("option", "title", "Список поездов по маршруту " + $("#sourceField").val() + " - " + $("#destinationField").val() + " на " + thisDateObj.val());
 
         $.jsonRPC.request("getTrainsList", {
-            params: [$("#sourceField").val(), $("#destinationField").val(), thisDate],
+            params: [$("#sourceField").val(), $("#destinationField").val(), thisDateInt],
             success: function(result) {
                 var res = result["result"];
                 var ret_html = '<tr>' +

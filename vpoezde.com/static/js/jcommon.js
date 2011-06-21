@@ -1,7 +1,7 @@
 function get_time_t(el)
 {
-    var d = el.val().split("-");
-    return Date.UTC(d[0], d[1] - 1, d[2]) / 1000;
+    var d = el.val().split(".");
+    return Date.UTC(d[2], d[1] - 1, d[0]) / 1000;
 }
 
 function trim(str) { return str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); }
