@@ -38,6 +38,11 @@ def RestartTracking(uid):
 
     
 def CheckAll():
+
+    # check if watchdog enabled
+    if os.path.exists('/home/user/dont-watch'):
+        return 0
+
     # prevent parallel execution
     lockfd = open('/tmp/bot-watchdog.lock', 'w')
     fcntl.flock(lockfd, fcntl.LOCK_EX)
