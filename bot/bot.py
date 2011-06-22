@@ -194,17 +194,17 @@ class Bot:
         text += "В продаже имеются следующие места:\n"
         # TODO: передавать тип вагона полностью
         for car in places:
-            type = ""
-            if car[1] == 1:
-                type = "сидячий"
-            if car[1] == 2:
-                type = "плацкартный"
-            elif car[1] == 3:
-                type = "купейный"
-            elif car[1] == 4:
-                type = "СВ"
+#            type = ""
+#            if car[1] == 1:
+#                type = "сидячий"
+#            if car[1] == 2:
+#                type = "плацкартный"
+#            elif car[1] == 3:
+#                type = "купейный"
+#            elif car[1] == 4:
+#                type = "СВ"
             price = '/'.join(car[3])
-            text += "\nВагон №%02d\nТип: %s\nСтоимость: %s\nСвободные места: " % (car[0], type, price)
+            text += "\nВагон №%02d\nТип: %s\nСтоимость: %s\nСвободные места: " % (car[0], car[4], price)
             for place in car[2]:
                 text += str(place[0])
                 if len(place) > 1:
@@ -330,6 +330,7 @@ class Bot:
             while (not success) and cnt < 7:
                 cnt += 1
                 try:
+                    print "requesting", request_date
                     request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=request_text)
                     response = urllib2.urlopen(request)
                 except urllib2.HTTPError as err:
@@ -339,7 +340,8 @@ class Bot:
                 else:
                     page = response.read()
                     checker = pageChecker.MZAErrorChecker()
-                    if not checker.CheckPage(page) == 0:
+                    res = checker.CheckPage(page)
+                    if not res == 0 and not checker.errorCode == 2010: #игнорируем ошибку "неверная дата отправления"
                         time.sleep(1)
                         continue
                     success = True

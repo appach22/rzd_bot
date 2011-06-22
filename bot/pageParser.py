@@ -11,7 +11,6 @@ class MZAParser(HTMLParser):
         self.inHeader = False
         self.inPlaces = False
         self.inCar = False
-        self.inPrice = False
         self.count = 0
         self.err = 0
         self.carType = 0
@@ -44,22 +43,26 @@ class MZAParser(HTMLParser):
         if data.find(u"Сидячий") != -1:
           self.inType = True
           self.carType = 1
+          self.carName = data.encode('utf-8')
         elif data.find(u"Плацкартный") != -1:
           self.inType = True
           self.carType = 2
+          self.carName = data.encode('utf-8')
         elif data.find(u"Купейный") != -1:
           self.inType = True
           self.carType = 3
+          self.carName = data.encode('utf-8')
         elif data.find(u"Вагон СВ") != -1:
           self.inType = True
           self.carType = 4
+          self.carName = data.encode('utf-8')
         elif data.find(u"Стоимость:") != -1:
           self.prices.append((data.split(' ')[1]).encode('utf-8'))
       if self.inPlaces :
         pos = data.find(u"Свободные места: ")
         if pos != -1 :
           places = [self.parsePlace(s) for s in data[pos+17:].split(", ")]
-          self.result.append([self.car, self.carType, places, self.prices])
+          self.result.append([self.car, self.carType, places, self.prices, self.carName])
           self.count += len(places)
       if self.inCar :
         pos = data.find(u"вагон №: ")

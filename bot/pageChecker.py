@@ -67,6 +67,11 @@ class MZAErrorChecker(HTMLParser):
             if self.errorText.find("2021") != -1: #ignore "Мест нет" error
                 self.inError = False
             # Strip useless error code
+#            print self.errorText.encode('utf-8')
+#            print re.sub('.*\[|\].*', '', self.errorText).encode('utf-8')
+            self.errorCode = 0
+            if self.errorText.find("[") != -1 and self.errorText.find("]") != -1:
+                self.errorCode = int(re.sub('.*\[|\].*', '', self.errorText).encode('utf-8'))
             self.errorText = re.sub('\[.*\] ', '', self.errorText)
 #        if self.inOption:
 #            self.options[len(self.options) - 1].append(data)

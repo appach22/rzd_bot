@@ -12,8 +12,14 @@ import urllib2
 from filter import PlacesFilter
 from pageParser import MZAParser
 
+
+bot = Bot()
+res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "143А"]}''')
+print res
+sys.exit(0)
+
 parser = MZAParser()
-f = open('index.php', 'r')
+f = open('../tests/index.php', 'r')
 page = f.read()
 f.close()
 parser.ParsePage(page)
@@ -42,11 +48,6 @@ places = [[2, 2, [[1], [2], [26]]], [5, 3, [[1], [2], [8], [9], [23], [24], [25]
 filt.applyFilter(places, data)
 print filt.totalPlaces
 print filt.filteredPlaces
-sys.exit(0)
-
-bot = Bot()
-res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "143А"]}''')
-print res
 sys.exit(0)
 
 bot = Bot()
