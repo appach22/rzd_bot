@@ -304,7 +304,7 @@ class Bot:
 
     def getTrainStatistics(self, station_from, station_to, train):
         ret = {}
-        ret['places'] = []
+        ret['places'] = [[], [], [], []]
         request_date = date.today()
         data = trackingData.TrackingData()
         id = data.getStationId(station_from.encode('utf-8'))
@@ -354,7 +354,9 @@ class Bot:
             places = [0, 0, 0, 0]
             for car in parser.result:
                 places[car[1] - 1] += len(car[2])
-            ret['places'].append([request_date.strftime("%d.%m"), places])
+            datestr = request_date.strftime("%d.%m")
+            for i in range(4):
+                ret['places'][i].append([datestr, places[i]])
             request_date += timedelta(days=1)
 
         ret['code'] = 0
