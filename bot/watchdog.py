@@ -4,6 +4,7 @@ import MySQLdb
 import trackingData
 #from bot import Bot
 from datetime import date
+from datetime import datetime
 import time
 from syslog import syslog
 import sys
@@ -16,14 +17,17 @@ database = "rzdtickets.ru"
 user = "rzdbot"
 passw = "rzdtickets22"
 
+datestr = ''
+
 def RestartTracking(uid):
-    print "Restarting %d" % (uid)
+    global datestr
+    print datestr, "Restarting %d" % (uid)
     syslog("Restarting %d" % uid)
     data = trackingData.TrackingData()
     if data.loadFromDB(uid) == 0:
         # remove old dates
         while data.trains[0][0] < date.today():
-            print "Removing old date", data.trains[0][0].strftime("%Y-%m-%d")
+            print datestr, "Removing old date", data.trains[0][0].strftime("%Y-%m-%d")
             del data.trains[0]
         if data.script == None or data.script == '':
             data.script = os.path.dirname(os.path.realpath(__file__))
@@ -34,18 +38,24 @@ def RestartTracking(uid):
         time.sleep(10)
         sys.path.remove(data.script)
     else:
-        print "Error loading tracking %d from the main table" % uid
+        print datestr, "Error loading tracking %d from the main table" % uid
 
     
 def CheckAll():
 
+    global datestr
     # check if watchdog enabled
     if os.path.exists('/home/user/dont-watch'):
         return 0
 
-    # prevent parallel execution
-    lockfd = open('/tmp/bot-watchdog.lock', 'w')
-    fcntl.flock(lockfd, fcntl.LOCK_EX)
+    datestr = str(datetime.now())
+    try:
+        # prevent parallel execution
+        lockfd = open('/tmp/bot-watchdog.lock', 'w')
+        fcntl.flock(lockfd, fcntl.LOCK_EX)
+    except IOError as (errno, strerror):
+        print datestr, "I/O error({0}): {1}".format(errno, strerror)
+        return 1
 
     try:
         conn = MySQLdb.connect(passwd = passw,
@@ -60,13 +70,13 @@ def CheckAll():
 ##                               charset = "utf8", 
 ##                               use_unicode = True)
     except MySQLdb.Error, e:
-        print "Error %d: %s" % (e.args[0], e.args[1])
+        print datestr, "Error %d: %s" % (e.args[0], e.args[1])
         return 1
     else:
         try:
             cursor = conn.cursor()
         except MySQLdb.Error, e:
-            print "Error %d: %s" % (e.args[0], e.args[1])
+            print datestr, "Error %d: %s" % (e.args[0], e.args[1])
             return 1
         else:
             try:
@@ -77,7 +87,7 @@ def CheckAll():
                     if date.today() >= row[2]:
                         data = trackingData.TrackingData()
                         data.uid = row[0]
-                        print "Tracking %d has expired" % data.uid
+                        print datestr, "Tracking %d has expired" % data.uid
                         data.removeDynamicData()
                         row = cursor.fetchone()
                         continue
@@ -88,10 +98,10 @@ def CheckAll():
                         if not err.errno == errno.EPERM:
                             RestartTracking(row[0])
                         else:
-                            print "Not enough permissions to signal the process"
+                            print datestr, "Not enough permissions to signal the process"
                     row = cursor.fetchone()
             except MySQLdb.Error, e:
-                print "Error %d: %s" % (e.args[0], e.args[1])
+                print datestr, "Error %d: %s" % (e.args[0], e.args[1])
                 return 1
             finally:
                 cursor.close()
