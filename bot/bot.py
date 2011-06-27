@@ -239,7 +239,19 @@ class Bot:
         except:
             ret["code"] = 5
             return ret
-        data.removeDynamicData()
+        i = 0
+        while i < 5:
+            try:
+                os.kill(data.pid, 0)
+            except:
+                break
+            time.sleep(1)
+            i += 1
+        if i < 5:
+            data.removeDynamicData()
+        else:
+            ret["code"] = 6
+            self.emergencyMail("Kill error", "Tracking %d process %d is still alive!" % (data.uid, data.pid))
         return ret
 
 
