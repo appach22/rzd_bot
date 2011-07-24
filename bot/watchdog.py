@@ -1,5 +1,4 @@
 import os
-import errno
 import MySQLdb
 import trackingData
 #from bot import Bot
@@ -9,6 +8,7 @@ import time
 from syslog import syslog
 import sys
 import fcntl
+import errno
 
 sys.path.remove(os.path.dirname(os.path.realpath(__file__)))
 
@@ -21,6 +21,7 @@ datestr = ''
 
 def RestartTracking(uid):
     global datestr
+    datestr = str(datetime.now())
     print datestr, "Restarting %d" % (uid)
     syslog("Restarting %d" % uid)
     data = trackingData.TrackingData()
@@ -53,8 +54,8 @@ def CheckAll():
         # prevent parallel execution
         lockfd = open('/tmp/bot-watchdog.lock', 'w')
         fcntl.flock(lockfd, fcntl.LOCK_EX)
-    except IOError as (errno, strerror):
-        print datestr, "I/O error({0}): {1}".format(errno, strerror)
+    except IOError as (err, strerr):
+        print datestr, "I/O error({0}): {1}".format(err, strerr)
         return 1
 
     try:
