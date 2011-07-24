@@ -8,7 +8,7 @@ class PlacesFilter:
         count = 0
         # Match car type
         if data.car_type == 0:
-            self.totalPlaces = list(places)
+            self.totalPlaces = deepcopy(places)
         else:
             self.totalPlaces = [car for car in places if car[1] == data.car_type]
         # Match places range and parity

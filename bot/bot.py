@@ -216,6 +216,8 @@ class Bot:
                         text += "Ж"
                     elif place[1] == 3:
                         text += "С"
+                    elif place[1] > 255:
+                        text += unichr(place[1]).encode('utf-8')
                 if place != car[2][len(car[2]) - 1]:
                     text += ", "
             text += '\n'

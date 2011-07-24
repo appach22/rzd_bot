@@ -13,17 +13,43 @@ from filter import PlacesFilter
 from pageParser import MZAParser
 
 
-bot = Bot()
-res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "143А"]}''')
-print res
-sys.exit(0)
+#bot = Bot()
+#res = bot.call('''{ "id":1, "jsonrpc":2, "method":"getTrainStatistics", "params": ["Санкт-Петербург", "Курск", "143А"]}''')
+#print res
+#sys.exit(0)
 
 parser = MZAParser()
-f = open('../tests/index.php', 'r')
+#f = open('../tests/index.php', 'r')
+f = open('../tests/index1.php', 'r')
 page = f.read()
 f.close()
 parser.ParsePage(page)
-print parser.result
+data = TrackingData()
+data.loadFromDict({     "route_from":"",\
+                        "route_to":"",\
+                        "trains":[\
+                                  [1305510400, "049"],\
+                                  [1305511100, "121"]\
+                                  ],\
+                        "car_type":0,\
+                        "emails":["s.stasishin@gmail.com", "stasishin@speechpro.com"],\
+                        "sms":[],\
+                        "expires":12378789,\
+                        "period":60,\
+                        "uid":123474,\
+                        "range":[0, 120],\
+                        "parity":3\
+                    })
+filt = PlacesFilter()
+filt.applyFilter(parser.result, data)
+print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+print filt.filteredPlaces
+print filt.getMatchedCount()
+print filt.getTotalCount()
+#print parser.result
 sys.exit(0)
 
 data = TrackingData()

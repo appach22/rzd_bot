@@ -40,7 +40,7 @@ class MZAParser(HTMLParser):
       if self.h == 1 :
         self.h = 0
       if self.inHeader :
-        if data.find(u"Сидячий") != -1:
+        if data.find(u"Сидячий") != -1 or data.find(u"Общий") != -1:
           self.inType = True
           self.carType = 1
           self.carName = data.encode('utf-8')
@@ -70,7 +70,12 @@ class MZAParser(HTMLParser):
           self.car = int(data[pos+9:pos+11])
         
     def parsePlace(self, place):
-        p = int(place[0:3])
+        prefix = ord(place[0])
+        if prefix > 57:
+            p = int(place[1:3])
+            return [p, prefix]
+        else:
+            p = int(place[0:3])
         if len(place) < 4:
             return [p]
         t = -1
