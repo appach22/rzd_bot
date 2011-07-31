@@ -4,13 +4,13 @@ import sys
 import time
 
 sys.path.append("/usr/local/bot")
-from bot import Bot
+import bot
 
 def application(environ, start_response):
     status = '200 OK'
     
     data = environ['wsgi.input'].readlines()
-    bot = Bot(environ['REMOTE_ADDR'])
+    bot.ip_addr = environ['REMOTE_ADDR']
     response = bot.call(data[0])
     response_headers = [('Content-type', 'application/json; charset=utf-8'),
                         ('Cache-Control', 'no-cache, must-revalidate'),

@@ -3,7 +3,7 @@
 from datetime import date
 import time
 import simplejson
-from bot import Bot
+import bot
 from trackingData import TrackingData
 import sys
 from pageParser import MZATrainsListParser
@@ -19,7 +19,7 @@ from pageParser import MZAParser
 #sys.exit(0)
 
 parser = MZAParser()
-#f = open('../tests/index.php', 'r')
+f = open('../tests/index.php', 'r')
 f = open('../tests/index1.php', 'r')
 page = f.read()
 f.close()

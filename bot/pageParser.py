@@ -50,11 +50,11 @@ class MZAParser(HTMLParser):
           self.carName = data.encode('utf-8')
         elif data.find(u"Купейный") != -1:
           self.inType = True
-          self.carType = 3
+          self.carType = 4
           self.carName = data.encode('utf-8')
         elif data.find(u"Вагон СВ") != -1:
           self.inType = True
-          self.carType = 4
+          self.carType = 8
           self.carName = data.encode('utf-8')
         elif data.find(u"Стоимость:") != -1:
           self.prices.append((data.split(' ')[1]).encode('utf-8'))

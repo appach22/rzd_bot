@@ -5,13 +5,14 @@ import time
 
 sys.path.append("/home/user/test/bot")
 sys.path.append("/home/alevtina/Data/!Business/Bot/rzd_bot/bot")
-from bot import Bot
+import bot
 
 def application(environ, start_response):
     status = '200 OK'
 
     data = environ['wsgi.input'].readlines()
-    bot = Bot(environ['REMOTE_ADDR'], '/var/log/bot/test')
+    bot.ip_addr = environ['REMOTE_ADDR']
+    bot.output_dir = '/var/log/bot/test'
     response = bot.call(data[0])
     response_headers = [('Content-type', 'application/json; charset=utf-8'),
                         ('Cache-Control', 'no-cache, must-revalidate'),
