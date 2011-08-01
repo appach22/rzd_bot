@@ -102,9 +102,9 @@ def start(data_dict):
 def doRequest(uid):
 
     global output_dir
-#    sys.stdout = sys.stderr = '/var/log/bot/common.log'
-#    f = open('%s/bot-%.6d.out' % (output_dir, uid), 'a')
-#    sys.stdout = sys.stderr = f
+    sys.stdout = sys.stderr = '/var/log/bot/common.log'
+    f = open('%s/bot-%.6d.out' % (output_dir, uid), 'a')
+    sys.stdout = sys.stderr = f
 
     data = trackingData.TrackingData()
     res = data.loadFromDB(uid)
@@ -160,7 +160,6 @@ def doRequest(uid):
         filter.applyFilter(parser.result, train)
         curr = filter.getMatchedCount()
         total_curr = filter.getTotalCount()
-        print curr, total_curr
         if curr > train.prev:
             # new tickets have arrived!!!
             mailer.send('vpoezde.com', '<robot@vpoezde.com>',
@@ -226,12 +225,6 @@ def stop(uid, email):
         return ret
     if not data.getDynamicData(uid):
         ret["code"] = 4
-        return ret
-    try:
-        if data.pid != -1:
-            os.kill(data.pid, signal.SIGINT)
-    except:
-        ret["code"] = 5
         return ret
     i = 0
     if data.pid != -1:
