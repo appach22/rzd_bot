@@ -7,7 +7,6 @@ class PlacesFilter:
         self.totalPlaces = []
         count = 0
         # Match car type
-        print train.car_type
         if train.car_type == 0:
             self.totalPlaces = deepcopy(places)
         else:

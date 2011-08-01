@@ -101,6 +101,12 @@ def start(data_dict):
 
 def doRequest(uid):
 
+    for fd in range(3, 1024):
+        try:
+           os.close(fd)
+        except OSError: # ERROR, fd wasn't open to begin with (ignored)
+           pass
+
     global output_dir
     sys.stdout = sys.stderr = '/var/log/bot/common.log'
     f = open('%s/bot-%.6d.out' % (output_dir, uid), 'a')
@@ -131,12 +137,12 @@ def doRequest(uid):
                 request_ok = True
                 break
             except urllib2.HTTPError as err:
-                print err.code
-                time.sleep(10)
+                print "HTTPError", err.code
+                time.sleep(1)
                 continue
             except urllib2.URLError as err:
-                print err.reason
-                time.sleep(10)
+                print "URLError", err.reason
+                time.sleep(1)
                 continue
             except:
                 print str(traceback.format_exc())
@@ -149,11 +155,9 @@ def doRequest(uid):
 
         checker = pageChecker.MZAErrorChecker()
         if not checker.CheckPage(page) == 0:
-            time.sleep(60)
             continue
         parser = MZAParser()
         if parser.ParsePage(page) != 0:
-            time.sleep(60)
             continue
 
         filter = PlacesFilter()
