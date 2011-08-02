@@ -278,6 +278,7 @@ class TrackingData:
         return 0
 
     def incrementSmsCount(self):
+        self.sms_count += 1
         if not self.db.query('UPDATE bot_static_info SET sms_count = %d WHERE uid = %d' % (self.sms_count, self.uid)):
             return 1
         return 0
