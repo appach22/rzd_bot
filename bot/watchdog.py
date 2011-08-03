@@ -25,7 +25,7 @@ def DoRequest(row, sleep):
     if script == None or script == '':
         script = os.path.dirname(os.path.realpath(__file__))
     # Передаем в качестве параметров номер заявки и время для сна перед запросом
-    os.system('python %s/bot.py %d %d &' % (script, row[0], sleep))
+    os.system('(sleep %d; python %s/bot.py %d) &' % (sleep, script, row[0]))
 
 
 def CheckAll():

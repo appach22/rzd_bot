@@ -123,8 +123,6 @@ def doRequest(uid):
     if datetime.now().hour == 3:
         return
 
-    time.sleep(int(sys.argv[2]))
-
     mailer = Mailer()
     sms = SMS()
     for train in data.trains:
