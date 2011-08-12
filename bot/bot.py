@@ -4,29 +4,28 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import time
-from multiprocessing import Process
 import os
-import dl
 import urllib2
-import signal
 import sys
 import simplejson
 import traceback
-
+import signal
 
 import pageChecker
 from mailer import Mailer
 import getter
 import trackingData
+from trackingData import TrackingData
 from sms import SMS
 from pageParser import MZAParser
 from pageParser import MZATrainsListParser
 from filter import PlacesFilter
 
 
+lastRequest = datetime.today()
+lastSuccessfullRequest = datetime.today()
 emergencyAddress = 's.stasishin@gmail.com'
 ip_addr = ''
-output_dir = '/var/log/bot'
 
 #def setGlobalParameters(remote_addr = '', out_dir = '/var/log/bot'):
 #    global ip_addr
@@ -34,6 +33,9 @@ output_dir = '/var/log/bot'
 #    ip_addr = remote_addr
 #    output_dir = out_dir
 
+def log(message):
+    print "%s: %s" % (datetime.today().strftime("%Y-%m-%d %H:%M:%S"), message)
+    
 def start(data_dict):
     global ip_addr
     data = trackingData.TrackingData()
@@ -76,8 +78,6 @@ def start(data_dict):
                 ret["StationError"] = checker.errorText
                 return ret
 
-    data.pid = -1
-    data.next_request = datetime.today()
     mailer = Mailer()
     sms = SMS()
     if not data.saveToDB():
@@ -87,6 +87,13 @@ def start(data_dict):
                     "plain",
                     "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
         return
+    
+    # Сигнализируем демону об изменениях в bot_dynamic_table
+    daemonPid = open('/tmp/bot/bot-daemon.pid', 'r')
+    pid = int(daemonPid.read())
+    daemonPid.close()
+    os.kill(pid, signal.SIGHUP)
+    
     mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                 data.emails,
                 "Ваша заявка %d принята (%s - %s)" % (data.uid, data.route_from, data.route_to),
@@ -99,29 +106,14 @@ def start(data_dict):
     return ret
 
 
-def doRequest(uid):
-
-    for fd in range(3, 1024):
-        try:
-           os.close(fd)
-        except OSError: # ERROR, fd wasn't open to begin with (ignored)
-           pass
-
-    global output_dir
-    sys.stdout = sys.stderr = '/var/log/bot/common.log'
-    f = open('%s/bot-%.6d.out' % (output_dir, uid), 'a')
-    sys.stdout = sys.stderr = f
-
-    data = trackingData.TrackingData()
-    res = data.loadFromDB(uid)
-    if (res):
-        print 'data.loadFromDB failed with code %d' % res
-        return
-    data.pid = os.getpid()
-    data.updateDynamicData()
+def doRequest(data):
+    global lastRequest
+    global lastSuccessfullRequest
 
     if datetime.now().hour == 3:
         return
+
+    ##log("Requesting %d..." % data.uid)
 
     mailer = Mailer()
     sms = SMS()
@@ -129,33 +121,37 @@ def doRequest(uid):
         request_ok = False
         for i in range(3):
             try:
+                lastRequest = datetime.today()
                 request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(train))
                 response = urllib2.urlopen(request)
                 page = response.read()
                 request_ok = True
                 break
             except urllib2.HTTPError as err:
-                print "HTTPError", err.code
+                print datestr, "HTTPError", err.code
                 time.sleep(1)
                 continue
             except urllib2.URLError as err:
-                print "URLError", err.reason
+                print datestr, "URLError", err.reason
                 time.sleep(1)
                 continue
             except:
                 print str(traceback.format_exc())
 
         if not request_ok:
-            print "Request error"
-            emergencyMail("Request error", "Check %s/bot-%.6d.out" % (output_dir, uid))
-            data.updateDynamicData()
+            log("%d: Request error" % data.uid)
+            emergencyMail("Request error", "Check %s/bot-%.6d.out" % (output_dir, data.uid))
+            #data.updateDynamicData()
             return
 
+        lastSuccessfullRequest = datetime.today()      
         checker = pageChecker.MZAErrorChecker()
         if not checker.CheckPage(page) == 0:
+            log("%d: Checker error: %s" % (data.uid, checker.errorText.encode('utf-8')))
             continue
         parser = MZAParser()
         if parser.ParsePage(page) != 0:
+            log("%d: Parser error" % data.uid)
             continue
 
         filter = PlacesFilter()
@@ -175,8 +171,8 @@ def doRequest(uid):
                 sms.send("vpoezde.com", "Для заявки %d достигнут предел количества sms-сообщений!" % (data.uid), data)
         train.prev = curr
         train.total_prev = total_curr
-        data.updateTrain(train)
-        data.updateDynamicData()
+##        data.updateTrain(train)
+##        data.updateDynamicData()
 
 
 def makeEmailText(data, train, places):
@@ -228,26 +224,20 @@ def stop(uid, email):
     if not data.getDynamicData(uid):
         ret["code"] = 4
         return ret
-    i = 0
-    if data.pid != -1:
-        while i < 20:
-            try:
-                os.kill(data.pid, 0)
-            except:
-                break
-            time.sleep(1)
-            i += 1
-    if i < 20:
-        data.removeDynamicData()
-        mailer = Mailer()
-        mailer.send('vpoezde.com', '<robot@vpoezde.com>', 
-                    data.emails,
-                    "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
-                    "plain",
-                    "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
-    else:
-        ret["code"] = 6
-        emergencyMail("Kill error", "Tracking %d process %d is still alive!" % (data.uid, data.pid))
+    data.removeDynamicData()
+
+    # Сигнализируем демону об изменениях в bot_dynamic_table
+    daemonPid = open('/tmp/bot/bot-daemon.pid', 'r')
+    pid = int(daemonPid.read())
+    daemonPid.close()
+    os.kill(pid, signal.SIGHUP)
+    
+    mailer = Mailer()
+    mailer.send('vpoezde.com', '<robot@vpoezde.com>', 
+                data.emails,
+                "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
+                "plain",
+                "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
     return ret
 
 
@@ -402,6 +392,5 @@ def emergencyMail(subject, text):
     mailer.send('vpoezde.com', '<robot@vpoezde.com>', [emergencyAddress], subject, "plain", text)
     return
 
-
-if len(sys.argv) > 1:
-    doRequest(int(sys.argv[1]))
+#if len(sys.argv) > 1:
+#    doRequest(int(sys.argv[1]))

@@ -195,19 +195,19 @@ class TrackingData:
         for train in self.trains:
             queries.append("""INSERT INTO trains
                 (uid, number, date, car_type, places_parity,
-                 places_range_low, places_range_high, prev, total_prev)
-                VALUES(%d, '%s', '%s', %d, %d, %d, %d, %d, %d)""" % \
+                 places_range_low, places_range_high)
+                VALUES(%d, '%s', '%s', %d, %d, %d, %d)""" % \
                 (self.uid, train.number, train.date.strftime("%Y-%m-%d"),
                 self.car_type, self.places_parity, self.places_range[0],
-                self.places_range[1], train.prev, train.total_prev))
+                self.places_range[1]))
         if not self.db.queries(queries):
             return False
 
         query = """INSERT INTO bot_dynamic_info
-                (uid, pid, expiration_date, script, next_request)
-                VALUES(%d, %d, '%s', '%s', '%s')""" % \
+                (uid, pid, expiration_date, script)
+                VALUES(%d, %d, '%s', '%s')""" % \
                 (self.uid, self.pid, self.expires.strftime("%Y-%m-%d"),
-                self.script, self.next_request.strftime("%Y-%m-%d %H:%M:%S"))
+                self.script)
         if not self.db.query(query):
             return False
 
@@ -245,8 +245,6 @@ class TrackingData:
             train.places_parity = self.places_parity = row[4]
             train.places_range[0] = self.places_range[0] = row[5]
             train.places_range[1] = self.places_range[1] = row[6]
-            train.prev = row[7]
-            train.total_prev = row[8]
             self.trains.append(train)
 
         return 0
@@ -264,18 +262,18 @@ class TrackingData:
         self.pid = self.db.rows[0][1]
         return True
 
-    def updateDynamicData(self):
-        self.next_request = datetime.today() + timedelta(seconds=self.period)
-        if not self.db.query("UPDATE bot_dynamic_info SET pid = %d, next_request = '%s' WHERE uid = %d" % (self.pid,
-                        self.next_request.strftime("%Y-%m-%d %H:%M:%S"), self.uid)):
-            return 1
-        return 0
+##    def updateDynamicData(self):
+##        self.next_request = datetime.today() + timedelta(seconds=self.period)
+##        if not self.db.query("UPDATE bot_dynamic_info SET pid = %d, next_request = '%s' WHERE uid = %d" % (self.pid,
+##                        self.next_request.strftime("%Y-%m-%d %H:%M:%S"), self.uid)):
+##            return 1
+##        return 0
 
-    def updateTrain(self, train):
-        if not self.db.query("UPDATE trains SET prev = %d, total_prev = %d WHERE uid = %d AND number = '%s' AND date = '%s'" \
-                             % (train.prev, train.total_prev, self.uid, train.number, train.date.strftime('%Y-%m-%d'))):
-            return 1
-        return 0
+##    def updateTrain(self, train):
+##        if not self.db.query("UPDATE trains SET prev = %d, total_prev = %d WHERE uid = %d AND number = '%s' AND date = '%s'" \
+##                             % (train.prev, train.total_prev, self.uid, train.number, train.date.strftime('%Y-%m-%d'))):
+##            return 1
+##        return 0
 
     def incrementSmsCount(self):
         self.sms_count += 1
