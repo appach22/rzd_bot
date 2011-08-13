@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -f "/home/user/dont-watch" ]; then
+    exit 0
+fi
+
 # Check if process alive
 TICK_TIME=`stat -c %Y /tmp/bot/bot-daemon.tick`
 CURR_TIME=`date +%s`
@@ -14,4 +18,5 @@ if [ $((CURR_TIME - TICK_TIME)) -ge 300 ]; then
         cd /usr/local/bot
     fi
     python bot-daemon.py &
+    echo `date` "Daemon restarted"
 fi

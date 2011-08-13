@@ -25,6 +25,7 @@ def run(index):
     global wasTerm
     localData = threadsTable[index]
     while True:
+        localData.tick = datetime.today()
         if wasTerm:
             break
         if not localData.runned:
@@ -62,11 +63,18 @@ def runOnce(data):
         
 class ThreadsTableEntry:
     def __init__(self, index):
+        self.index = index
         self.thread = threading.Thread(target=run, args=(index,))
         self.runned = False
+        self.tick = datetime.today()
+
         
     def start(self):
         self.thread.start()
+        
+    def restart(self):
+        self.thread = threading.Thread(target=run, args=(self.index,))
+        self.start()
 
 class DataListEntry:
     busy = False
@@ -191,10 +199,21 @@ while True:
                 newThread = threading.Thread(target=runOnce, args=(tracking, ))
                 tracking.busy = True
                 newThread.start()
+                
     if bot.lastRequest > bot.lastSuccessfullRequest and \
     bot.lastRequest - bot.lastSuccessfullRequest > timedelta():
         bot.emergencyMail("Request error", "There was no successfull requests during the last 10 minutes!")
         bot.log("Request error: there was no successfull requests during the last 10 minutes!")
+        
+    i = 0
+    now = datetime.today()
+    delta = timedelta(seconds=600)
+    for threadData in threadsTable:
+        if now - threadData.tick > delta:
+            threadData.restart()
+            bot.log("Restarted thread %d" % i)
+        i += 1
+        
     open('/tmp/bot/bot-daemon.tick', 'w').close()
     os.utime('/tmp/bot/bot-daemon.tick', None)
     time.sleep(60)

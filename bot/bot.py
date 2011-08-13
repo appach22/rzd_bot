@@ -128,11 +128,11 @@ def doRequest(data):
                 request_ok = True
                 break
             except urllib2.HTTPError as err:
-                print datestr, "HTTPError", err.code
+                log("HTTPError: %d" % err.code)
                 time.sleep(1)
                 continue
             except urllib2.URLError as err:
-                print datestr, "URLError", err.reason
+                log("URLError: %s" % err.reason)
                 time.sleep(1)
                 continue
             except:
