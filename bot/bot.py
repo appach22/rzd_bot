@@ -140,7 +140,7 @@ def doRequest(data):
 
         if not request_ok:
             log("%d: Request error" % data.uid)
-            emergencyMail("Request error", "Check %s/bot-%.6d.out" % (output_dir, data.uid))
+            #emergencyMail("Request error", "Check %s/bot-%.6d.out" % (output_dir, data.uid))
             #data.updateDynamicData()
             return
 
