@@ -29,7 +29,7 @@ def run(index):
         if wasTerm:
             break
         if not localData.runned:
-            time.sleep(10)
+            time.sleep(1)
             continue
 
         # Доспим оставшееся время
@@ -42,7 +42,7 @@ def run(index):
         
         # Делаем запрос
         bot.doRequest(localData.data.tracking)
-        localData.data.nextRequest = datetime.today() + timedelta(seconds=localData.data.tracking.period)
+        localData.data.nextRequest = datetime.today() + timedelta(seconds=localData.data.tracking.period + localData.data.randomizer)
         ##bot.log("%d: Next request on %s" % (localData.data.tracking.uid, localData.data.nextRequest.strftime("%Y-%m-%d %H:%M:%S")))
         localData.data.busy = False
         localData.runned = False
@@ -114,9 +114,11 @@ def RefreshDataList():
         if not TrackingInDataList(entry.tracking.uid):
             entry.tracking.expires = row[2]
             entry.nextRequest += timedelta(seconds=random.randint(0, 59))
+            entry.randomizer = random.randint(0, 59)
             entry.busy = False
             dataList.append(entry)
             bot.log("Tracking %d started" % entry.tracking.uid)
+            time.sleep(3)
         RemoveStopped(database.rows)
 
 def SigHandler(signum, frame):
@@ -155,6 +157,7 @@ for i in range(staticThreadsCount):
     newThread = ThreadsTableEntry(i)
     threadsTable.append(newThread)
     newThread.start()
+    time.sleep(1)
 
 RefreshDataList()
 
@@ -201,7 +204,7 @@ while True:
                 newThread.start()
                 
     if bot.lastRequest > bot.lastSuccessfullRequest and \
-    bot.lastRequest - bot.lastSuccessfullRequest > timedelta():
+    bot.lastRequest - bot.lastSuccessfullRequest > timedelta(seconds=600):
         bot.emergencyMail("Request error", "There was no successfull requests during the last 10 minutes!")
         bot.log("Request error: there was no successfull requests during the last 10 minutes!")
         

@@ -113,11 +113,14 @@ def doRequest(data):
     if datetime.now().hour == 3:
         return
 
-    ##log("Requesting %d..." % data.uid)
 
     mailer = Mailer()
     sms = SMS()
+    today = date.today()
     for train in data.trains:
+        if train.date < today:
+            continue
+        #log("Requesting %d..." % data.uid)
         request_ok = False
         for i in range(3):
             try:
@@ -128,11 +131,11 @@ def doRequest(data):
                 request_ok = True
                 break
             except urllib2.HTTPError as err:
-                log("HTTPError: %d" % err.code)
+                log("%d: HTTPError: %d" % (data.uid, err.code))
                 time.sleep(1)
                 continue
             except urllib2.URLError as err:
-                log("URLError: %s" % err.reason)
+                log("%d: URLError: %s" % (data.uid, err.reason))
                 time.sleep(1)
                 continue
             except:
@@ -146,12 +149,16 @@ def doRequest(data):
 
         lastSuccessfullRequest = datetime.today()      
         checker = pageChecker.MZAErrorChecker()
-        if not checker.CheckPage(page) == 0:
-            log("%d: Checker error: %s" % (data.uid, checker.errorText.encode('utf-8')))
+        chkres = checker.CheckPage(page)
+        if not chkres == 0:
+            if not chkres == 255 and checker.errorText.encode('utf-8').find("Повторите Ваш запрос позже") == -1:
+                log("%d: Checker error: %s" % (data.uid, checker.errorText.encode('utf-8')))
+            time.sleep(3)
             continue
         parser = MZAParser()
         if parser.ParsePage(page) != 0:
             log("%d: Parser error" % data.uid)
+            time.sleep(1)
             continue
 
         filter = PlacesFilter()
@@ -171,6 +178,7 @@ def doRequest(data):
                 sms.send("vpoezde.com", "Для заявки %d достигнут предел количества sms-сообщений!" % (data.uid), data)
         train.prev = curr
         train.total_prev = total_curr
+        time.sleep(2)
 ##        data.updateTrain(train)
 ##        data.updateDynamicData()
 

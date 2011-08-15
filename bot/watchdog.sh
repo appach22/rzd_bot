@@ -4,6 +4,10 @@ if [ -f "/home/user/dont-watch" ]; then
     exit 0
 fi
 
+if [ ! -d /tmp/bot ]; then
+    mkdir /tmp/bot
+fi
+
 # Check if process alive
 TICK_TIME=`stat -c %Y /tmp/bot/bot-daemon.tick`
 CURR_TIME=`date +%s`
