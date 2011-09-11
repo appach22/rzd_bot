@@ -194,11 +194,12 @@ function take_and_send_start()
         if(validate_text(el_d))
         {
             var thisDate = parseInt(get_time_t(el_d), 10);
-            for(var j = 1; j < 4; j++)
+            var el_t = $(".d" + i + "t1f");
+            if(validate_text(el_t))
             {
-                var el_t = $(".d" + i + "t" + j + "f");
-                if(validate_text(el_t) || j == 1)
-                    trains.push(new Array(thisDate, el_t.val()));
+                var numbers = el_t.val().split(", ");
+                for (var j = 0; j < numbers.length; j++)
+                    trains.push(new Array(thisDate, numbers[j]));
             }
         }
     }

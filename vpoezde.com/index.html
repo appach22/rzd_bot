@@ -115,25 +115,13 @@
                                                 <table align="right" border="0" cellpadding="0" cellspacing="0">
                                                     <tr>
                                                         <td>Дата: <input type="text" class="dateField d1f short-field" readonly /></td></td>
-                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="datePlus" /></td>
                                                     </tr>
                                                 </table>
                                             </td>
                                             <td class="table-block-param" valign="top">
                                                 <table align="left" border="0" cellpadding="0" cellspacing="0">
                                                     <tr>
-                                                        <td>№ поезда: <input type="text" class="d1t1f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="trainPlus" /></td>
-                                                    </tr>
-                                                    <tr class="d1t2 disabledField"><td height="5"></td><td></td></tr>
-                                                    <tr class="d1t2 disabledField" id="d1t2">
-                                                        <td>№ поезда: <input type="text" class="d1t2f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
-                                                    </tr>
-                                                    <tr class="d1t3 disabledField"><td height="5"></td><td></td></tr>
-                                                    <tr class="d1t3 disabledField" id="d1t3">
-                                                        <td>№ поезда: <input type="text" class="d1t3f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                        <td>№№ поездов: <input type="text" class="d1t1f trainField long-field" readonly /></td>
                                                     </tr>
                                                 </table>
                                             </td>
@@ -147,25 +135,13 @@
                                                 <table align="right" border="0" cellpadding="0" cellspacing="0">
                                                     <tr>
                                                         <td>Дата: <input type="text" class="dateField d2f short-field" readonly /></td></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="dateMinus" /></td>
                                                     </tr>
                                                 </table>
                                             </td>
                                             <td class="table-block-param" valign="top">
                                                 <table align="left" border="0" cellpadding="0" cellspacing="0">
                                                     <tr>
-                                                        <td>№ поезда: <input type="text" class="d2t1f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="trainPlus" /></td>
-                                                    </tr>
-                                                    <tr class="d2t2 disabledField"><td height="5"></td><td></td></tr>
-                                                    <tr class="d2t2 disabledField" id="d2t2">
-                                                        <td>№ поезда: <input type="text" class="d2t2f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
-                                                    </tr>
-                                                    <tr class="d2t3 disabledField"><td height="5"></td><td></td></tr>
-                                                    <tr class="d2t3 disabledField" id="d2t3">
-                                                        <td>№ поезда: <input type="text" class="d2t3f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                        <td>№№ поездов: <input type="text" class="d2t1f trainField long-field" readonly /></td>
                                                     </tr>
                                                 </table>
                                             </td>
@@ -179,27 +155,28 @@
                                                 <table align="right" border="0" cellpadding="0" cellspacing="0">
                                                     <tr>
                                                         <td>Дата: <input type="text" class="dateField d3f short-field" readonly /></td></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="dateMinus" /></td>
                                                     </tr>
                                                 </table>
                                             </td>
                                             <td class="table-block-param" valign="top">
                                                 <table align="left" border="0" cellpadding="0" cellspacing="0">
                                                     <tr>
-                                                        <td>№ поезда: <input type="text" class="d3t1f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/plus.png" border="0" alt="" class="trainPlus" /></td>
-                                                    </tr>
-                                                    <tr class="d3t2 disabledField"><td height="5"></td><td></td></tr>
-                                                    <tr class="d3t2 disabledField" id="d3t2">
-                                                        <td>№ поезда: <input type="text" class="d3t2f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
-                                                    </tr>
-                                                    <tr class="d3t3 disabledField"><td height="5"></td><td></td></tr>
-                                                    <tr class="d3t3 disabledField" id="d3t3">
-                                                        <td>№ поезда: <input type="text" class="d3t3f trainField short-field" readonly /></td>
-                                                        <td class="plus-minus"><img src="static/img/minus.png" border="0" alt="" class="trainMinus" /></td>
+                                                        <td>№№ поездов: <input type="text" class="d3t1f trainField long-field" readonly /></td>
                                                     </tr>
                                                 </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="table-block-name" align="right">
+                                                <table>
+                                                    <tr>
+                                                        <td width="100%"></td>
+                                                        <td><a id="addDate">Добавить&nbsp;дату</a></td>
+                                                        <td width="5">|</td>
+                                                        <td><a id="removeDate" class="disabledLink">Убрать&nbsp;дату</a></td>
+                                                    </tr>
+                                                </table>
+                                            <td class="table-block-param">
                                             </td>
                                         </tr>
                                         <tr>
@@ -310,6 +287,7 @@
                                         </tr>-->
                                     </table>
                                 </td>
+                                <td width="10"></td>
                                 <td width="200" align="left" valign="bottom"><div id="govnovk_groups"></div></td>
                                 <td width="5" align="left"></td>
                             </tr>

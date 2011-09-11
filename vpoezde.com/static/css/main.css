@@ -15,6 +15,7 @@ body {
 a {
     color: #0080c0;
     text-decoration: none;
+    cursor: pointer;
 }
 
 a img, iframe {
@@ -132,6 +133,15 @@ select {
 
 .noTitleStuff .ui-dialog-titlebar {
     display: none;
+}
+
+.disabledLink {
+    color: grey;
+    cursor: default;
+}
+
+.disabledLink:hover {
+    text-decoration: none;
 }
 
 /***************************************

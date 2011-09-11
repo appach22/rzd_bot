@@ -1,6 +1,7 @@
 $(function() {
 
 var trainFocused = null;
+var trainsSelected = [];
 
 $(".dateField").datepicker({dateFormat: "dd.mm.yy", changeMonth: true, changeYear: true});
 
@@ -159,6 +160,8 @@ $("#trainsDialog").dialog({
             params: [$("#sourceField").val(), $("#destinationField").val(), thisDateInt],
             success: function(result) {
                 var res = result["result"];
+                var alreadySelected = trainFocused.val().split(", ");
+                trainsSelected = [];
                 var ret_html = '<tr>' +
                                '<td></td><td width="15"></td>' +
                                '<td align="center"><b>Поезд</b></td><td width="15"></td>' +
@@ -181,11 +184,14 @@ $("#trainsDialog").dialog({
                         for(i in res["trains"])
                         {
                             var train = res["trains"][i];
-                            var tr = trim((train["train"]))
+                            var tr = trim((train["train"]));
                             var num = tr.split(" ");
-                            var route = trim(tr.slice(tr.indexOf(" ")))
+                            var checked = "";
+                            var route = trim(tr.slice(tr.indexOf(" ")));
+                            if (alreadySelected.indexOf(num[0]) != -1)
+                                checked = "checked ";
                             ret_html += '<tr>' +
-                                        '<td><input type="radio" name="trainListEl" class="trainListEl" value="' + num[0] + '"></td><td></td>' +
+                                        '<td><input type="checkbox" name="trainListEl" class="trainListEl" ' + checked + 'value="' + num[0] + '"></td><td></td>' +
                                         '<td align="center">' + num[0] + '</td><td></td>' +
                                         '<td>' + route + '</td><td></td>' +
                                         '<td align="center">' + train["departure"] + '</td><td></td>' +
@@ -197,12 +203,12 @@ $("#trainsDialog").dialog({
                         break;
                     case 1:
                         $("#trainsDialog").dialog("close");
-                        trainFocused.val("");
+                        //trainFocused.val("");
                         jAlert("error", "Ошибка при отправке запроса: " + res["HTTPError"], "Ошибка");
                         break;
                     case 2:
                         $("#trainsDialog").dialog("close");
-                        trainFocused.val("");
+                        //trainFocused.val("");
                         jAlert("error", "Ошибка системы Express-3: " + res["ExpressError"], "Ошибка");
                         break;
                     case 3:
@@ -229,6 +235,10 @@ $("#trainsDialog").dialog({
         });
     },
     buttons: {
+        "OK": function() {
+            trainFocused.val(trainsSelected.join(", "));
+            $(this).dialog("close");
+        },
         "Отмена": function() {
             $(this).dialog("close");
         }
@@ -236,8 +246,55 @@ $("#trainsDialog").dialog({
 });
 
 $(".trainListEl").live("change", function() {
-    trainFocused.val($(this).val());
-    $("#trainsDialog").dialog("close");
+    if ($(this).attr('checked'))
+    {
+        if (trainsSelected.indexOf($(this).val()) == -1)
+        {
+            if (trainsSelected.length < 5)
+                trainsSelected.push($(this).val());
+            else
+            {
+                $(this).get(0).checked = false;
+                jAlert("warning", "Можно выбрать не более 5 поездов в одну дату", "Предупреждение");
+            }
+        }
+    }
+    else
+    {
+        var index = trainsSelected.indexOf($(this).val());
+        if (index != -1)
+            trainsSelected.splice(index, 1);
+    }
+});
+
+$("#addDate").live("click", function() {
+    for(var i = 2; i < 4; i++)
+    {
+        $("#removeDate").removeClass("disabledLink");
+        var item = ".d" + i;
+        if($(item).hasClass("disabledField"))
+        {
+            $(item).removeClass("disabledField");
+            if (i == 3)
+                $("#addDate").addClass("disabledLink");
+            break;
+        }
+    }
+});
+
+$("#removeDate").live("click", function() {
+    for(var i = 3; i > 1; i--)
+    {
+        $("#addDate").removeClass("disabledLink");
+        var item = ".d" + i;
+        if(!$(item).hasClass("disabledField"))
+        {
+            $(item).addClass("disabledField");
+            if (i == 2)
+                $("#removeDate").addClass("disabledLink");
+            break;
+        }
+    }
 });
 
 // loading dialog
@@ -259,50 +316,6 @@ $(".station1rst").click(function() {
 $(".station2rst").click(function() {
     select_to_input($(this), "destinationField");
     setAutocomplete(2);
-});
-
-// bind to plus & minus
-$(".trainMinus").click(function() {
-    var theID = $(this).closest("tr").attr("id");
-    $("." + theID).addClass("disabledField");
-    $("." + theID + "f").val("");
-});
-
-$(".trainPlus").click(function() {
-    var theID = $(this).closest("tr").closest("td").closest("tr").attr("id");
-    for(var i = 2; i < 4; i++)
-    {
-        var item = "." + theID + "t" + i;
-        if($(item).hasClass("disabledField"))
-        {
-            $(item).removeClass("disabledField");
-            break;
-        }
-    }
-});
-
-$(".dateMinus").click(function() {
-    var theID = $(this).closest("tr").closest("td").closest("tr").attr("id");
-    $("." + theID).addClass("disabledField");
-    $("." + theID + "f").val("");
-    for(var i = 1; i < 4; i++)
-    {
-        $("." + theID + "t" + i + "f").val("");
-        if(i > 1)
-            $("." + theID + "t" + i).addClass("disabledField");
-    }
-});
-
-$(".datePlus").click(function() {
-    for(var i = 2; i < 4; i++)
-    {
-        var item = ".d" + i;
-        if($(item).hasClass("disabledField"))
-        {
-            $(item).removeClass("disabledField");
-            break;
-        }
-    }
 });
 
 $(".emailMinus").click(function() {
