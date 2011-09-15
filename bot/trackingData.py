@@ -9,7 +9,7 @@ from syslog import syslog
 from db import db
 
 class Train:
-    
+
     def __init__(self, date, number):
         self.number = number
         self.date = date
@@ -33,7 +33,7 @@ class Train:
 
 
 class TrackingData:
-    
+
     def __init__(self):
         self.route_from = ""
         self.route_to = ""
@@ -55,7 +55,7 @@ class TrackingData:
         self.places_parity = 3 #both, upper and lower
         self.places_range = [0, 200]
         self.db = db()
-        
+
     def getStationId(self, station):
         if not self.db.query("SELECT station_code FROM `stations_t4you.ru` WHERE `station_name` LIKE '%s'" % station):
             return 0
@@ -95,30 +95,30 @@ class TrackingData:
                 "&TrainPlaces_TrainN=" + train.number + \
                 "&spr=TrainPlaces" + \
                 "&submit_TrainPlaces=Показать"
-                
+
     def getAllPosts(self):
         posts = []
         for i in range(len(self.trains)):
             posts.append(self.getPost(i))
         return posts
-    
+
     def saveToFile(self, name):
         try:
             file = open(name, "w")
         except IOError:
             return False
-        
+
         pickle.dump(self, file);
-        file.close()    
-        
+        file.close()
+
     def loadFromFile(self, name):
         try:
             file = open(name, "r")
         except IOError:
             return False
-        
+
         return pickle.load(file);
-    
+
     def loadFromDict(self, dict):
         try:
             self.route_from = dict["route_from"].encode("utf-8")
@@ -162,11 +162,7 @@ class TrackingData:
             while (self.trains[len(self.trains) - 1].date - self.trains[0].date) > timedelta(2):
                 del self.trains[len(self.trains) - 1]
 
-            car_type = int(dict["car_type"])
-            if car_type == 0:
-                self.car_type = 255
-            else:
-                self.car_type = 1 << (car_type - 1)
+            self.car_type = int(dict["car_type"])
             self.emails = list(dict["emails"])
             self.sms = list(dict["sms"])
             self.expires = self.trains[len(self.trains) - 1].date + timedelta(1)
@@ -176,7 +172,7 @@ class TrackingData:
             self.uid = 0
         except:
             raise
-        
+
     def saveToDB(self):
         query = """INSERT INTO bot_static_info
                     (username, emails, sms, creation_date,

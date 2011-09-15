@@ -190,13 +190,16 @@
                                         <tr>
                                             <td class="table-block-name">Тип вагона:</td>
                                             <td class="table-block-param">
-                                                <select id="wagonField" class="long-field-sl">
-                                                    <option value="0" selected="selected">Любой</option>
-                                                    <option value="1">Сидячий</option>
-                                                    <option value="2">Плацкартный</option>
-                                                    <option value="3">Купейный</option>
-                                                    <option value="4">Вагон СВ</option>
-                                                </select>
+                                                <table>
+                                                    <tr>
+                                                        <td><label><input type="checkbox" class="checkbox-field" id="car_lux" />Вагон СВ</label></td>
+                                                        <td><label><input type="checkbox" class="checkbox-field" id="car_kupe" />Купейный</label></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><label><input type="checkbox" class="checkbox-field" id="car_platz" />Плацкартный</label></td>
+                                                        <td><label><input type="checkbox" class="checkbox-field" id="car_sit" />Сидячий</label></td>
+                                                    </tr>
+                                                </table>
                                             </td>
                                         </tr>
                                         <tr>

@@ -228,9 +228,26 @@ function take_and_send_start()
         }
     });
 
+    var car_type = 0;
+    if ($("#car_lux").attr('checked'))
+        car_type |= 8;
+    if ($("#car_kupe").attr('checked'))
+        car_type |= 4;
+    if ($("#car_platz").attr('checked'))
+        car_type |= 2;
+    if ($("#car_sit").attr('checked'))
+        car_type |= 1;
+    if (car_type == 0)
+    {
+        $("#loadingDialog").dialog("close");
+        jAlert("warning", "Выберите тип вагона.", "Предупреждение");
+        return;
+    }
+
+
     $.jsonRPC.request("start", {
         params: [{"route_from": route_from, "route_to": route_to,
-                 "trains": trains, "car_type": parseInt($("#wagonField").val(), 10),
+                 "trains": trains, "car_type": car_type,
                  "range": [validate_text($("#placesFrom")) ?
                                                            parseInt($("#placesFrom").val(), 10) : 1,
                            validate_text($("#placesTo")) ?
