@@ -290,6 +290,8 @@ $("#removeDate").live("click", function() {
         if(!$(item).hasClass("disabledField"))
         {
             $(item).addClass("disabledField");
+            $(".d" + i + "f").get(0).value = "";
+            $(".d" + i + "t1f").get(0).value = "";
             if (i == 2)
                 $("#removeDate").addClass("disabledLink");
             break;
