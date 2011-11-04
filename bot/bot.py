@@ -110,9 +110,11 @@ def doRequest(data):
     global lastRequest
     global lastSuccessfullRequest
 
-    if datetime.now().hour == 3:
+    now = datetime.now()
+    if now.hour == 3:
         return
-
+    if now.hour == 5 and now.minute == 40:
+        return
 
     mailer = Mailer()
     sms = SMS()
