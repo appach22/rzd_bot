@@ -84,8 +84,8 @@ def start(data_dict):
         mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                     data.emails + ["s.stasishin@gmail.com"],
                     "Ошибка базы данных",
-                    "plain",
-                    "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.")
+                    "Произошла ошибка записи в базу данных. Пожалуйста, повторите попытку.",
+                    "<html></html>")
         return
     
     # Сигнализируем демону об изменениях в bot_dynamic_table
@@ -93,12 +93,14 @@ def start(data_dict):
     pid = int(daemonPid.read())
     daemonPid.close()
     os.kill(pid, signal.SIGHUP)
-    
+
+    tmpl = open('templates/hello.tmpl')
+    html = tmpl.read()
     mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                 data.emails,
                 "Ваша заявка %d принята (%s - %s)" % (data.uid, data.route_from, data.route_to),
-                "plain",
-                "Ваша заявка принята и запущена в работу. Вы будете получать оповещения на этот адрес в случае появления новых свободных мест.\nЗаявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid)
+                "Ваша заявка принята и запущена в работу. Вы будете получать оповещения на этот адрес в случае появления новых свободных мест.\nЗаявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid,
+                html)
 
     sms.send("vpoezde.com", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data)
 
