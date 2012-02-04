@@ -118,6 +118,8 @@ def RefreshDataList():
             entry.busy = False
             dataList.append(entry)
             bot.log("Tracking %d started" % entry.tracking.uid)
+            open('/tmp/bot/bot-daemon.tick', 'w').close()
+            os.utime('/tmp/bot/bot-daemon.tick', None)
             time.sleep(3)
         RemoveStopped(database.rows)
 

@@ -17,9 +17,9 @@ class Mailer:
         msg['To'] = ",".join(mtos)
 
         part1 = MIMEText(text, 'plain', 'utf-8')
-        part2 = MIMEText(html, 'html', 'utf-8')
+        #part2 = MIMEText(html, 'html', 'utf-8')
         msg.attach(part1)
-        msg.attach(part2)
+        msg.attach(part1)
         s = smtplib.SMTP('localhost')
         s.sendmail(mfrom_address, mtos, msg.as_string())
         s.quit()

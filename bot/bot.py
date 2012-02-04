@@ -26,6 +26,9 @@ lastRequest = datetime.today()
 lastSuccessfullRequest = datetime.today()
 emergencyAddress = 's.stasishin@gmail.com'
 ip_addr = ''
+urls = ["http://www.mza.ru/?exp=1", "http://mza.vpoezde.com/?exp=1"]
+# http://www.hidemyass.com/proxy-list/search-225414
+proxies = ["200.63.171.156:80", "203.66.188.247:8080"]
 
 #def setGlobalParameters(remote_addr = '', out_dir = '/var/log/bot'):
 #    global ip_addr
@@ -35,6 +38,37 @@ ip_addr = ''
 
 def log(message):
     print "%s: %s" % (datetime.today().strftime("%Y-%m-%d %H:%M:%S"), message)
+
+def checkProxy(proxy):
+    try:
+        proxy_handler = urllib2.ProxyHandler({'http': proxy})
+        opener = urllib2.build_opener(proxy_handler)
+        opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+        urllib2.install_opener(opener)
+        req=urllib2.Request('http://www.mza.ru')
+        urllib2.urlopen(req)
+    except urllib2.HTTPError, e:
+        print 'Error code: ', e.code
+        return e.code
+    except Exception, detail:
+        print "ERROR:", detail
+        return True
+    return False
+
+def requestUrls(requestData):
+    i = -1
+    for current_url in urls:
+        i += 1
+        try:
+            request = urllib2.Request(url=current_url, data=requestData)
+            response = urllib2.urlopen(request)
+            return response
+        except:
+            if i >= len(urls) - 1:
+                raise
+            else:
+                continue
+
     
 def start(data_dict):
     global ip_addr
@@ -49,8 +83,7 @@ def start(data_dict):
         res = 255
         while res == 255:
             try:
-                request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(train))
-                response = urllib2.urlopen(request)
+                response = requestUrls(data.getPostAsString(train))
             except urllib2.HTTPError as err:
                 ret["code"] = 1
                 ret["HTTPError"] = str(err.code)
@@ -94,13 +127,13 @@ def start(data_dict):
     daemonPid.close()
     os.kill(pid, signal.SIGHUP)
 
-    tmpl = open('templates/hello.tmpl')
-    html = tmpl.read()
+    #tmpl = open('templates/hello.tmpl')
+    #html = tmpl.read()
     mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                 data.emails,
                 "Ваша заявка %d принята (%s - %s)" % (data.uid, data.route_from, data.route_to),
                 "Ваша заявка принята и запущена в работу. Вы будете получать оповещения на этот адрес в случае появления новых свободных мест.\nЗаявке присвоен номер %s. Используйте этот номер для отмены заявки." % data.uid,
-                html)
+                "")
 
     sms.send("vpoezde.com", "Заявка принята. Используйте номер %s для отмены заявки" % data.uid, data)
 
@@ -129,8 +162,7 @@ def doRequest(data):
         for i in range(3):
             try:
                 lastRequest = datetime.today()
-                request = urllib2.Request(url="http://www.mza.ru/?exp=1", data=data.getPostAsString(train))
-                response = urllib2.urlopen(request)
+                response = requestUrls(data.getPostAsString(train))
                 page = response.read()
                 request_ok = True
                 break
@@ -174,8 +206,8 @@ def doRequest(data):
             mailer.send('vpoezde.com', '<robot@vpoezde.com>',
                         data.emails,
                         "Билеты (+%d новых) [Заявка %d: %s - %s]" % (total_curr - train.total_prev, data.uid, data.route_from, data.route_to),
-                        "plain",
-                        makeEmailText(data, train, filter.totalPlaces))
+                        makeEmailText(data, train, filter.totalPlaces),
+                        "")
             if data.sms_count < 29:
                 sms.send("vpoezde.com", "%d билетов (%d новых): %s, поезд %s" % (total_curr, total_curr - train.total_prev, train.date.strftime("%d.%m.%Y"), train.number), data)
             if data.sms_count == 29:
@@ -248,8 +280,8 @@ def stop(uid, email):
     mailer.send('vpoezde.com', '<robot@vpoezde.com>', 
                 data.emails,
                 "Заявка %d (%s - %s) завершена" % (data.uid, data.route_from, data.route_to),
-                "plain",
-                "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid))
+                "Заявка %d завершена. Спасибо за использование сервиса!" % (data.uid),
+                "")
     return ret
 
 
@@ -268,7 +300,7 @@ def getTrainsList(route_from, route_to, departure_date):
         else:
             sto = route_to.encode('utf-8')
 
-        request = urllib2.Request(url="http://www.mza.ru/?exp=1", data="""ScheduleRoute_DepDate=%s
+        response = requestUrls("""ScheduleRoute_DepDate=%s
                                                          &ScheduleRoute_StationFrom=%s
                                                          &ScheduleRoute_StationTo=%s
                                                          &spr=ScheduleRoute
@@ -279,7 +311,6 @@ def getTrainsList(route_from, route_to, departure_date):
                                                          &ScheduleRoute_DepTimeTo=""" % \
                                                          (date.fromtimestamp(departure_date).strftime("%d.%m.%Y"),
                                                          sfrom, sto))
-        response = urllib2.urlopen(request)
     except urllib2.HTTPError as err:
         ret["code"] = 1
         ret["HTTPError"] = str(err.code)
@@ -401,7 +432,7 @@ def call(request_text):
 def emergencyMail(subject, text):
     global emergencyAddress
     mailer = Mailer()
-    mailer.send('vpoezde.com', '<robot@vpoezde.com>', [emergencyAddress], subject, "plain", text)
+    mailer.send('vpoezde.com', '<robot@vpoezde.com>', [emergencyAddress], subject, text, "")
     return
 
 #if len(sys.argv) > 1:
