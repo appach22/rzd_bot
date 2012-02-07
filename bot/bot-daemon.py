@@ -209,7 +209,8 @@ while True:
     bot.lastRequest - bot.lastSuccessfullRequest > timedelta(seconds=600):
         bot.emergencyMail("Request error", "There was no successfull requests during the last 10 minutes!")
         bot.log("Request error: there was no successfull requests during the last 10 minutes!")
-        
+        bot.lastSuccessfullRequest = datetime.today()
+
     i = 0
     now = datetime.today()
     delta = timedelta(seconds=600)
@@ -221,4 +222,5 @@ while True:
         
     open('/tmp/bot/bot-daemon.tick', 'w').close()
     os.utime('/tmp/bot/bot-daemon.tick', None)
+    bot.loadProxies()
     time.sleep(60)

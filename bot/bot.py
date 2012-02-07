@@ -36,8 +36,7 @@ def loadProxies():
     proxies = f.read().split("\n")
     proxies.remove('')
     f.close()
-    print proxies
-    
+
 def dumpProxies():
     global proxies
     f = open("/tmp/proxies.list", "w")
@@ -48,14 +47,14 @@ def dumpProxies():
 def log(message):
     print "%s: %s" % (datetime.today().strftime("%Y-%m-%d %H:%M:%S"), message)
 
-def tryProxy(url, requestData, proxy):
+def tryProxy(url, requestData, proxy, tmo):
     try:
         proxy_handler = urllib2.ProxyHandler({'http': proxy})
         opener = urllib2.build_opener(proxy_handler)
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         urllib2.install_opener(opener)
         request = urllib2.Request(url=url, data=requestData)
-        response = urllib2.urlopen(request, None, 5)
+        response = urllib2.urlopen(request, None, tmo)
     except urllib2.HTTPError, e:
         print 'Request HTTPError on %1: %2' % (proxy, e.code)
         raise
@@ -67,14 +66,14 @@ def tryProxy(url, requestData, proxy):
         raise
     return response
 
-def requestUrls(requestData):
+def requestUrls(requestData, tmo=5):
     i = -1
     for current_url in urls:
         i += 1
         try:
             for proxy in proxies:
                 try:
-                    response = tryProxy(current_url, requestData, proxy)
+                    response = tryProxy(current_url, requestData, proxy, tmo)
                     # Рабочий прокси помещаем в начало списка
                     proxies.remove(proxy)
                     proxies.insert(0, proxy)
@@ -182,7 +181,7 @@ def doRequest(data):
         for i in range(3):
             try:
                 lastRequest = datetime.today()
-                response = requestUrls(data.getPostAsString(train))
+                response = requestUrls(data.getPostAsString(train), 15)
                 page = response.read()
                 request_ok = True
                 break
