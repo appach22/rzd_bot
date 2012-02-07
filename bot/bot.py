@@ -28,48 +28,66 @@ emergencyAddress = 's.stasishin@gmail.com'
 ip_addr = ''
 urls = ["http://www.mza.ru/?exp=1", "http://mza.vpoezde.com/?exp=1"]
 # http://www.hidemyass.com/proxy-list/search-225414
-proxies = ["200.63.171.156:80", "203.66.188.247:8080"]
+proxies = []
 
-#def setGlobalParameters(remote_addr = '', out_dir = '/var/log/bot'):
-#    global ip_addr
-#    global output_dir
-#    ip_addr = remote_addr
-#    output_dir = out_dir
+def loadProxies():
+    global proxies
+    f = open("/tmp/proxies.list", "r")
+    proxies = f.read().split("\n")
+    proxies.remove('')
+    f.close()
+    print proxies
+    
+def dumpProxies():
+    global proxies
+    f = open("/tmp/proxies.list", "w")
+    for proxy in proxies:
+        f.write(proxy + "\n")
+    f.close()
 
 def log(message):
     print "%s: %s" % (datetime.today().strftime("%Y-%m-%d %H:%M:%S"), message)
 
-def checkProxy(proxy):
+def tryProxy(url, requestData, proxy):
     try:
         proxy_handler = urllib2.ProxyHandler({'http': proxy})
         opener = urllib2.build_opener(proxy_handler)
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         urllib2.install_opener(opener)
-        req=urllib2.Request('http://www.mza.ru')
-        urllib2.urlopen(req)
+        request = urllib2.Request(url=url, data=requestData)
+        response = urllib2.urlopen(request, None, 5)
     except urllib2.HTTPError, e:
-        print 'Error code: ', e.code
-        return e.code
+        print 'Request HTTPError on %1: %2' % (proxy, e.code)
+        raise
+    except urllib2.URLError as err:
+        print 'Request URLError on %1: %2' % (proxy, err.reason)
+        raise
     except Exception, detail:
-        print "ERROR:", detail
-        return True
-    return False
+        print 'Request error on %1: %2' % (proxy, detail)
+        raise
+    return response
 
 def requestUrls(requestData):
     i = -1
     for current_url in urls:
         i += 1
         try:
-            request = urllib2.Request(url=current_url, data=requestData)
-            response = urllib2.urlopen(request)
-            return response
+            for proxy in proxies:
+                try:
+                    response = tryProxy(current_url, requestData, proxy)
+                    # Рабочий прокси помещаем в начало списка
+                    proxies.remove(proxy)
+                    proxies.insert(0, proxy)
+                    return response
+                except:
+                    continue
         except:
             if i >= len(urls) - 1:
                 raise
             else:
                 continue
 
-    
+
 def start(data_dict):
     global ip_addr
     data = trackingData.TrackingData()
@@ -79,11 +97,13 @@ def start(data_dict):
     # Проверяем на корректность номера поездов и даты
     checker = pageChecker.MZAErrorChecker()
     ret = {}
+    loadProxies()
     for train in data.trains:
         res = 255
         while res == 255:
             try:
                 response = requestUrls(data.getPostAsString(train))
+                dumpProxies()
             except urllib2.HTTPError as err:
                 ret["code"] = 1
                 ret["HTTPError"] = str(err.code)
@@ -300,6 +320,7 @@ def getTrainsList(route_from, route_to, departure_date):
         else:
             sto = route_to.encode('utf-8')
 
+        loadProxies()
         response = requestUrls("""ScheduleRoute_DepDate=%s
                                                          &ScheduleRoute_StationFrom=%s
                                                          &ScheduleRoute_StationTo=%s
@@ -311,6 +332,7 @@ def getTrainsList(route_from, route_to, departure_date):
                                                          &ScheduleRoute_DepTimeTo=""" % \
                                                          (date.fromtimestamp(departure_date).strftime("%d.%m.%Y"),
                                                          sfrom, sto))
+        dumpProxies()
     except urllib2.HTTPError as err:
         ret["code"] = 1
         ret["HTTPError"] = str(err.code)
